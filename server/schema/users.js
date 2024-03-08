@@ -42,7 +42,6 @@ const skillDetail = new mongoose.Schema({
 })
 
 const userSchema = new mongoose.Schema({
-    id : String,
     personalDetail : personalDetail,
     collegeDetail : collegeDetail,
     certificationDetail : [certificationDetail],
