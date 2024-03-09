@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const registerNewUser = require('./server/routes/register');
+const loginUser = require('./server/routes/login');
 
 const app = express();
 const PORT = 3000;
@@ -17,6 +18,7 @@ app.use(express.json());
 
 //routes
 app.use('/register', registerNewUser);
+app.use('/login', loginUser);
 
 //listening to server at port
 app.listen(PORT, () => console.log(`server running on http://localhost:${PORT}`));

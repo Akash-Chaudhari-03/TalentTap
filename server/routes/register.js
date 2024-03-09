@@ -6,9 +6,13 @@ const userModel = require('../schema/users');
 //register new user
 router.post('/newUser', (req,res) => {
     if(req.body.email && req.body.password && req.body.firstName && req.body.lastName && req.body.confirmPwd){
-        userModel.find({'personalDetail.email' : req.body.email}).exec()
+        if(req.body.confirmPwd != req.body.password){
+            res.json("Password does not match!");
+        }
+        else{
+            userModel.findOne({'personalDetail.email' : req.body.email}).exec()
             .then((data) => {
-                if(Object.keys(data).length === 0){
+                if(data === null){
                     //user does not exist
                     const personalDetail = {
                         'firstName': req.body.firstName,
@@ -27,6 +31,7 @@ router.post('/newUser', (req,res) => {
                 }
             })
             .catch((error) => res.json("Oops! Some Error Occurred!"));
+        }
     }
     else{
         res.json("All Fields Required!");
