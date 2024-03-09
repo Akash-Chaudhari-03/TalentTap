@@ -5,18 +5,18 @@ const userModel = require('../schema/users');
 
 //register new user
 router.post('/newUser', (req,res) => {
-    if(req.body.email && req.body.password && req.body.firstName && req.body.lastName && req.body.confirmPwd){
+    if(req.body.email && req.body.username && req.body.password && req.body.confirmPwd){
         if(req.body.confirmPwd != req.body.password){
             res.json("Password does not match!");
         }
         else{
-            userModel.findOne({'personalDetail.email' : req.body.email}).exec()
+            //check if either username or email exists in db
+            userModel.findOne({ $or: [{'personalDetail.email' : req.body.email}, {'personalDetail.username' : req.body.username}]}).exec()
             .then((data) => {
                 if(data === null){
                     //user does not exist
                     const personalDetail = {
-                        'firstName': req.body.firstName,
-                        'lastName': req.body.lastName,
+                        'username': req.body.username,
                         'email': req.body.email,
                         'password' : req.body.password
                     };
@@ -27,7 +27,7 @@ router.post('/newUser', (req,res) => {
                     res.json("New User Registered!")
                 }
                 else{
-                    res.json("Email Already Registered!");
+                    res.json("User Already Exists!");
                 }
             })
             .catch((error) => res.json("Oops! Some Error Occurred!"));
