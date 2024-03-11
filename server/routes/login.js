@@ -5,11 +5,20 @@ const userModel = require('../schema/users');
 
 //login existing user
 router.post('/user', (req,res) => {
-    if(req.body.email && req.body.password) {
-        userModel.findOne({'personalDetail.email' : req.body.email, 'personalDetail.password' : req.body.password}).exec()
+    if(req.body.id && req.body.password) {
+        userModel.findOne({'personalDetail.email' : req.body.id, 'personalDetail.password' : req.body.password}).exec()
         .then((data => {
             if(data == null){
-                res.json("Invalid credentials!");
+                userModel.findOne({'personalDetail.username' : req.body.id, 'personalDetail.password' : req.body.password}).exec()
+                .then((data => {
+                    if(data == null){
+                        res.json("Invalid credentials!");
+                    }
+                    else {
+                        res.json("Login successful!")
+                    }
+                }))
+                .catch((error) => res.json("Some error occurred!"))
             }
             else {
                 res.json("Login successful!")
