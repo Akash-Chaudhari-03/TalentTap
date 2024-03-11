@@ -15,6 +15,8 @@ mongoose.connect('mongodb://127.0.0.1/TalentTap')
 //middleware
 app.use(bodyParser.text());
 app.use(express.json());
+const cors = require("cors");
+app.use(cors());
 
 //routes
 app.use('/register', registerNewUser);
