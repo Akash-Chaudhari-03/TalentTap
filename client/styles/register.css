@@ -70,7 +70,6 @@ body{
 }
 
 .text{
-    
     display: inline-flex;
     text-align: center;
     margin-left: 30px;
@@ -80,8 +79,7 @@ body{
 
 .btn:hover{
     box-shadow: 2px 2px 2px;
-    background-color: #b2e8f9;
-    
+    background-color: #b2e8f9;    
 }
 
 .username,.email,.password,.confirmPassword{
@@ -91,8 +89,7 @@ body{
     margin-bottom: 5px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    box-sizing: border-box;
-    
+    box-sizing: border-box;    
 }
 
 .name:hover{
@@ -113,7 +110,6 @@ body{
 .confirm-password:hover{
     box-shadow: 1px 1px 1px;
     color: #2c2b2b;
-    
 }
 
 .registration-box{
@@ -123,7 +119,6 @@ body{
     box-shadow: 0px 0px 5px 0px rgb(0,0,0,1);
     width: 300px;
     margin-top: 20px;
-
 }
 
 .sign{
@@ -134,5 +129,4 @@ body{
     border: none;
     padding: 10px 20px;
     margin-top: -10px;
-
 }
