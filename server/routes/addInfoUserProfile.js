@@ -155,6 +155,41 @@ router.post('/addCertificates', (req, res) => {
     }
 });
   
+//add project details
+router.post('/addProject', (req, res) => {
+    const { username, projectName, description, projectLink} = req.body;
+    if (username && projectName && description) {
+        userModel.findOne({ 'personalDetail.username': username }).exec()
+        .then(userfound => {
+            if (!userfound) {
+                return res.status(404).json({ message: 'User not found!' });
+            } 
+            else {
+                const newProject = {
+                    projectName,
+                    description,
+                    projectLink
+                };
+                return userModel.updateOne(
+                {'personalDetail.username': username},
+                { $push: {projectDetail: newProject}},
+                {new: true})
+                .then(updatedData => {
+                    res.json({ message: 'New project added successfully!', data: updatedData.projectDetail });
+                })
+                .catch(error => {
+                    res.status(500).json({ message: 'Some error occured', error: error.message });
+                });
+            }
+        })
+        .catch(error => {
+          res.json(error.message);
+        });
+    } 
+    else {
+        res.json("All fields required!");
+    }
+});
 
 module.exports = router
 
