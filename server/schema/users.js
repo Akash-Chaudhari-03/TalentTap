@@ -37,7 +37,7 @@ const projectDetail = new mongoose.Schema({
 })
 
 const skillDetail = new mongoose.Schema({
-    skills : String,
+    skill : String,
     experience : Number
 })
 
@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
     skillDetail : [skillDetail],
     rating : Number,
     isAvailable : Boolean
-})
+}, { minimize: false })
 
 //creating model
 const model = mongoose.model('usersList', userSchema);
