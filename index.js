@@ -4,7 +4,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const registerNewUser = require('./server/routes/register');
 const loginUser = require('./server/routes/login');
-const updateUserProfile = require('./server/routes/updateUserProfile');
+const updateUserProfile = require('./server/routes/addInfoUserProfile');
+const getUserDetails = require('./server/routes/getUserDetails');
 
 const app = express();
 const PORT = 3000;
@@ -22,6 +23,7 @@ app.use(cors());
 //routes
 app.use('/register', registerNewUser);
 app.use('/login', loginUser);
+app.use('/user', getUserDetails);
 app.use('/updateProfile', updateUserProfile);
 
 //listening to server at port
