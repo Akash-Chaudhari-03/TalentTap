@@ -21,7 +21,8 @@ router.post('/newUser', (req,res) => {
                         'password' : req.body.password
                     };
                     const userDetail = {
-                        personalDetail : personalDetail
+                        personalDetail : personalDetail,
+                        isAvailable : true
                     }
                     userModel.create(userDetail);
                     res.json("New User Registered!")
