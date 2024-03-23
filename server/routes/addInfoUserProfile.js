@@ -35,68 +35,7 @@ router.post('/personalDetail', (req,res) => {
     }
 })
 
-//update college details
-//issue : college identification for updation (~ resolved)
-// router.post('/collegeDetail', (req, res) => {
-//     if(req.body.username && req.body.collegeName && (req.body.collegeLocation || req.body.branch || req.body.year || req.body.stream)){
-//         userModel.findOne({'personalDetail.username' : req.body.username}).exec()
-//         .then((data => {
-//             console.log(data.collegeDetail)
-//             if(data === null){
-//                 res.json("User not found!")
-//             }
-//             else{
-//                 const newData = {
-//                     'collegeName' : req.body.collegeName,
-//                     'collegeLocation' : req.body.collegeLocation,
-//                     'branch' : req.body.branch,
-//                     'stream' : req.body.stream,
-//                     'year' : req.body.year
-//                 }
-//                 userModel.findOne({'personalDetail.username' : req.body.username, 'collegeDetail.collegeName' : req.body.collegeName}).exec()
-//                 .then(userfound => {
-//                     if(userfound === null){ //if given college does not exist, push new college in the array.
-//                         userModel.updateOne({'personalDetail.username' : req.body.username},
-//                         {$push : {'collegeDetail' : newData}},
-//                         {new : true}
-//                         )
-//                         .then(newDataAdded => {
-//                             res.json("New College Data Pushed!")
-//                         })
-//                         .catch(error => {
-//                             res.json("some error occured!")
-//                         })
-//                     }
-//                     else{ //if the given college exists, add/modify the new information in that object.
-//                         userModel.updateOne({'personalDetail.username' : req.body.username, 'collegeDetail.collegeName' : req.body.collegeName},
-//                         {$set : {'collegeDetail.$.collegeName' : req.body.collegeName, 'collegeDetail.$.collegeLocation' : req.body.collegeLocation, 'collegeDetail.$.branch' : req.body.branch, 'collegeDetail.$.stream' : req.body.stream, 'collegeDetail.$.year' : req.body.year}},
-//                         {new : true}
-//                         )
-//                         .then(userUpdated => {
-//                             res.json("College Data Updated!")
-//                         })
-//                         .catch(error => {
-//                             res.json(error.message)
-//                         })
-//                     }
-//                 })
-//                 .catch(error => {
-//                     res.json("Some error occured!")
-//                 })
-//             }
-//         }))
-//         .catch(error => res.json("Oops! Some error occured!"))
-//     }
-//     else if(!req.body.collegeName){
-//         res.json("College Name Required!")
-//     }
-//     else{
-//         res.json("User not authenticated")
-//     }
-// })
-
-
-// Endpoint to add college detail (using promises)
+// Endpoint to add college detail
 router.post('/collegeDetail', (req, res) => {
     const { username, collegeName, collegeLocation, branch, year, stream } = req.body;
     if (username && collegeName && (collegeLocation || branch || year || stream)) {
@@ -177,6 +116,45 @@ router.post('/addSkills', (req, res) => {
         res.json("All fields required!");
     }
 })
+
+// Add certificate details
+router.post('/addCertificates', (req, res) => {
+    const { username, certificateName, organization, issueDate, expiryDate, credentialLink } = req.body;
+    if (username && certificateName && organization && issueDate && credentialLink) {
+        userModel.findOne({ 'personalDetail.username': username }).exec()
+        .then(userfound => {
+            if (!userfound) {
+                return res.status(404).json({ message: 'User not found!' });
+            } 
+            else {
+                const newCertificate = {
+                    certificateName,
+                    organization,
+                    issueDate: new Date(issueDate), //(YYYY-MM-DD) string
+                    expiryDate: expiryDate ? new Date(expiryDate) : null,  //(YYYY-MM-DD) string
+                    credentialLink,
+                };
+                return userModel.updateOne(
+                {'personalDetail.username': username},
+                { $push: {certificationDetail: newCertificate}},
+                {new: true})
+                .then(updatedData => {
+                    res.json({ message: 'New certificate added successfully!', data: updatedData.certificationDetail });
+                })
+                .catch(error => {
+                    res.status(500).json({ message: 'Some error occured', error: error.message });
+                });
+            }
+        })
+        .catch(error => {
+          res.json(error.message);
+        });
+    } 
+    else {
+        res.json("All fields required!");
+    }
+});
+  
 
 module.exports = router
 
