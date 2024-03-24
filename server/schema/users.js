@@ -19,7 +19,8 @@ const collegeDetail = new mongoose.Schema({
     collegeLocation : String,
     branch : String,
     year : String,
-    stream : String
+    stream : String,
+    isValid : { type: Boolean, default: true }
 })
 
 const certificationDetail = new mongoose.Schema({
@@ -27,28 +28,31 @@ const certificationDetail = new mongoose.Schema({
     organization : String,
     issueDate : Date,
     expiryDate : Date,
-    credentialLink : String
+    credentialLink : String,
+    isValid : { type: Boolean, default: true }
 })
 
 const projectDetail = new mongoose.Schema({
     projectName : String,
     description : String,
-    projectLink : String
+    projectLink : String,
+    isValid : { type: Boolean, default: true }
 })
 
 const skillDetail = new mongoose.Schema({
     skill : String,
-    experience : Number
+    experience : Number,
+    isValid : { type: Boolean, default: true }
 })
 
 const userSchema = new mongoose.Schema({
     personalDetail : personalDetail,
-    collegeDetail : collegeDetail,
+    collegeDetail : [collegeDetail],
     certificationDetail : [certificationDetail],
     projectDetail : [projectDetail],
     skillDetail : [skillDetail],
     rating : Number,
-    isAvailable : Boolean
+    isAvailable : { type: Boolean, default: true }
 }, { minimize: false })
 
 //creating model

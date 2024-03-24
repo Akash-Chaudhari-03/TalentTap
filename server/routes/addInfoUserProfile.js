@@ -44,7 +44,7 @@ router.post('/collegeDetail', (req, res) => {
             if (!user) {
                 return res.status(404).json({ message: 'User not found!' });
             }
-            else if (!user.collegeDetail || Object.keys(user.collegeDetail).length === 0) { // Check for empty object
+            else if (!user.collegeDetail || Object.keys(user.collegeDetail).length === 0 || user.collegeDetail.every(college => !college.isValid)) { // Check for empty object
                 const newData = {
                     collegeName,
                     collegeLocation,
@@ -52,7 +52,7 @@ router.post('/collegeDetail', (req, res) => {
                     stream,
                     year
                 };
-                return userModel.updateOne({ 'personalDetail.username': username }, { $set: { collegeDetail: newData } }, { new: true })
+                return userModel.updateOne({ 'personalDetail.username': username }, { $push: { collegeDetail: newData } }, { new: true })
                 .then(updatedUser => {
                     res.json({ message: 'College detail added successfully!', data: updatedUser.collegeDetail });
                 })
@@ -88,7 +88,7 @@ router.post('/addSkills', (req, res) => {
         else {
             // Check if the skill already exists for the user
             const existingSkill = userfound.skillDetail.find(skillItem => skillItem.skill === skill);
-            if (existingSkill) {
+            if (existingSkill && existingSkill.isValid) {
                 return res.status(400).json({ message: 'Skill already exists!' });
             } 
             else{
