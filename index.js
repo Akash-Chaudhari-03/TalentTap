@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const registerNewUser = require('./server/routes/register');
 const loginUser = require('./server/routes/login');
 const updateUserProfile = require('./server/routes/addInfoUserProfile');
+const deleteInfoUserProfile = require('./server/routes/deleteInfoUserProfile');
 const getUserDetails = require('./server/routes/getUserDetails');
 
 const app = express();
@@ -24,7 +25,8 @@ app.use(cors());
 app.use('/register', registerNewUser);
 app.use('/login', loginUser);
 app.use('/user', getUserDetails);
-app.use('/updateProfile', updateUserProfile);
+app.use('/userInfo/addDetails', updateUserProfile);
+app.use('/userInfo/deleteDetails', deleteInfoUserProfile);
 
 //listening to server at port
 app.listen(PORT, () => console.log(`server running on http://localhost:${PORT}`));
