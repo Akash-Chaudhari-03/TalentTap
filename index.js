@@ -24,7 +24,7 @@ app.use(cors());
 //routes
 app.use('/register', registerNewUser);
 app.use('/login', loginUser);
-app.use('/user', getUserDetails);
+app.use('/userInfo', getUserDetails);
 app.use('/userInfo/addDetails', updateUserProfile);
 app.use('/userInfo/deleteDetails', deleteInfoUserProfile);
 
