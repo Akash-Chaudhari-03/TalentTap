@@ -41,6 +41,36 @@ router.post('/deleteSkill', (req, res) => {
 });
 
 //delete certification
+router.post('/deleteCertificate', (req, res) => {
+    if (req.body.username && req.body._id) {
+        userModel.findOne({ 'personalDetail.username': req.body.username })
+        .then((userFound) => {
+            if (!userFound) {
+                return res.status(400).json({ message: 'User not found!' });
+            } 
+            else {
+                // Find the index of the certification to mark as invalid
+            const certificationIndex = userFound.certificationDetail.findIndex(
+                (cert) => cert._id.toString() === req.body._id && cert.isValid
+            );
 
+            if (certificationIndex !== -1) {
+                userFound.certificationDetail[certificationIndex].isValid = false;
+                userFound.save()
+                .then(() => res.json({ message: 'Certification marked as invalid.' }))
+                .catch((error) => res.json({ error: error.message }));
+            } else {
+                return res.status(400).json({ message: 'Certification not found.' });
+            }
+            }
+        })
+        .catch((error) => {
+            res.json(error.message);
+        });
+    }
+    else{
+        res.json({ message: "User not authenticated!" });
+    }
+})
   
 module.exports = router
