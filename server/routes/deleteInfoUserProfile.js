@@ -72,5 +72,32 @@ router.post('/deleteCertificate', (req, res) => {
         res.json({ message: "User not authenticated!" });
     }
 })
+
+//delete projects
+router.post('/deleteProject', (req, res) => {
+    if(req.body.username && req.body._id){
+        userModel.findOne({'personalDetail.username' : req.body.username})
+        .then((userFound) => {
+            const projectIndex = userFound.projectDetail.findIndex(
+                (project) => project._id.toString() === req.body._id && project.isValid
+            );
+            if (projectIndex !== -1) {
+                userFound.projectDetail[projectIndex].isValid = false;
+                userFound.save()
+                .then(() => res.json({ message: 'Project marked as invalid.' }))
+                .catch((error) => res.json({ error: error.message }));
+            } 
+            else {
+                return res.status(400).json({ message: 'Project does not exist or is already invalid.' });
+            }
+        })
+        .catch((error) => {
+            res.json(error.message);
+        });
+    }
+    else{
+        res.json({ message : "User not authenticated!"});
+    }
+})
   
 module.exports = router
