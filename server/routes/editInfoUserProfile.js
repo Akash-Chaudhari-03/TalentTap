@@ -94,4 +94,48 @@ router.post('/collegeDetail', (req,res) => {
     }
 })
 
+//edit user skills
+router.post('/skillDetail', (req,res) => {
+    const {username, _id, skill, experience} = req.body;
+    if(username && _id && (skill || experience)){
+        userModel.findOne({ 'personalDetail.username' : username})
+        .then((userFound) => {
+            if(!userFound){
+                return res.status(400).json({error : "User not found!"});
+            }
+            const skillIndex = userFound.skillDetail.findIndex((skill) => skill._id.toString() === _id);
+            if (skillIndex === -1) {
+                return res.status(400).json({ error: 'Specified skill does not exist!' });
+            }
+            const skillToUpdate = userFound.skillDetail[skillIndex];
+            if (!skillToUpdate.isValid) {
+                return res.status(404).json({ error: 'Specified skill does not exist!' });
+            }
+            userModel.findOneAndUpdate(
+                { 'personalDetail.username': username, 'skillDetail._id': _id },
+                {
+                $set: {
+                    'skillDetail.$.skill': skill || skillToUpdate.skill,
+                    'skillDetail.$.experience': experience || skillToUpdate.experience,
+                },
+                },
+                { new: true })
+                .then((infoUpdated) => {
+                    if (!infoUpdated) {
+                    return res.status(400).json({ error: 'User not found!' });
+                    }
+                    res.json({ message: 'Skill details updated successfully!', detail: infoUpdated.skillDetail[skillIndex] });
+                })
+                .catch((err) => {
+                    console.error(err);
+                    res.status(500).json({ error: 'Internal server error' });
+                }
+            );
+        })
+    }
+    else{
+        res.json({error : "Fields empty!"}); //better error message (issue)
+    }
+})
+
 module.exports = router
