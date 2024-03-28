@@ -99,5 +99,35 @@ router.post('/deleteProject', (req, res) => {
         res.json({ message : "User not authenticated!"});
     }
 })
-  
+
+//delete college details
+router.post('/deleteCollege', (req, res) => {
+    if(req.body.username && req.body._id){
+        userModel.findOne({ 'personalDetail.username' : req.body.username})
+        .then((userFound) => {
+            if(!userFound){
+                return res.status(400).json({ message : "User not found!"});
+            }
+            else{
+                const collegeIndex = userFound.collegeDetail.findIndex((college) => college._id.toString() === req.body._id && college.isValid);
+                if (collegeIndex !== -1) {
+                    userFound.collegeDetail[collegeIndex].isValid = false;
+                    userFound.save()
+                    .then(() => res.json({ message: 'College deleted!' }))
+                    .catch((error) => res.json({ error: error.message }));
+                } 
+                else {
+                    return res.status(400).json({ message: 'College not found!' });
+                }
+            }
+        })
+        .catch((error) => {
+            res.json(error.message);
+        });
+    }
+    else {
+        res.json({ message: "User not authenticated!" });
+    }
+})
+
 module.exports = router
