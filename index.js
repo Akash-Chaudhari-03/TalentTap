@@ -7,6 +7,8 @@ const loginUser = require('./server/routes/login');
 const updateUserProfile = require('./server/routes/addInfoUserProfile');
 const deleteInfoUserProfile = require('./server/routes/deleteInfoUserProfile');
 const getUserDetails = require('./server/routes/getUserDetails');
+const editUserDetails = require('.server/routes/editInfoUserProfile');
+
 
 const app = express();
 const PORT = 3000;
@@ -14,6 +16,7 @@ const PORT = 3000;
 //connecting with mongodb compass locally
 mongoose.connect('mongodb://127.0.0.1/TalentTap')
     .then(()=>console.log("Connected to database successfully!"))
+    .catch((error)=>res.json(error.message))
 
 //middleware
 app.use(bodyParser.text());
@@ -27,6 +30,7 @@ app.use('/login', loginUser);
 app.use('/userInfo', getUserDetails);
 app.use('/userInfo/addDetails', updateUserProfile);
 app.use('/userInfo/deleteDetails', deleteInfoUserProfile);
+app.use('/editInfoUserProfile', editUserDetails);
 
 //listening to server at port
 app.listen(PORT, () => console.log(`server running on http://localhost:${PORT}`));
