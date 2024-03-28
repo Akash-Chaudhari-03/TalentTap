@@ -138,4 +138,96 @@ router.post('/skillDetail', (req,res) => {
     }
 })
 
+//edit certificate
+router.post('/certificateDetail', (req,res) => {
+    const {username, _id, certificateName, organization, issueDate, expiryDate, credentialLink} = req.body;
+    if(username && _id && (certificateName || organization || issueDate || expiryDate || credentialLink)){
+        userModel.findOne({ 'personalDetail.username' : username})
+        .then((userFound) => {
+            if(!userFound){
+                return res.status(400).json({error : "User not found!"});
+            }
+            const certificateIndex = userFound.certificationDetail.findIndex((cert) => cert._id.toString() === _id);
+            if (certificateIndex === -1) {
+                return res.status(400).json({ error: 'Specified certificate does not exist!' });
+            }
+            const certificateToUpdate = userFound.certificationDetail[certificateIndex];
+            if (!certificateToUpdate.isValid) {
+                return res.status(404).json({ error: 'Specified certificate does not exist!' });
+            }
+            userModel.findOneAndUpdate(
+                { 'personalDetail.username': username, 'certificationDetail._id': _id },
+                {
+                $set: {
+                    'certificationDetail.$.certificateName': certificateName ||certificateToUpdate.certificateName,
+                    'certificationDetail.$.credentialLink': credentialLink ||certificateToUpdate.credentialLink,
+                    'certificationDetail.$.expiryDate': expiryDate ||certificateToUpdate.expiryDate,
+                    'certificationDetail.$.issueDate': issueDate ||certificateToUpdate.issueDate,
+                    'certificationDetail.$.organization': organization ||certificateToUpdate.organization,
+                },
+                },
+                { new: true })
+                .then((infoUpdated) => {
+                    if (!infoUpdated) {
+                    return res.status(400).json({ error: 'User not found!' });
+                    }
+                    res.json({ message: 'Certificate details updated successfully!', detail: infoUpdated.certificationDetail[certificateIndex] });
+                })
+                .catch((err) => {
+                    console.error(err);
+                    res.status(500).json({ error: 'Internal server error' });
+                }
+            );
+        })
+    }
+    else{
+        res.json({error : "Fields empty!"}); //better error message (issue)
+    }
+})
+
+//edit project
+router.post('/projectDetail', (req,res) => {
+    const {username, _id, projectName, description, projectLink} = req.body;
+    if(username && _id && (projectName || description || projectLink)){
+        userModel.findOne({ 'personalDetail.username' : username})
+        .then((userFound) => {
+            if(!userFound){
+                return res.status(400).json({error : "User not found!"});
+            }
+            const projectIndex = userFound.projectDetail.findIndex((project) => project._id.toString() === _id);
+            if (projectIndex === -1) {
+                return res.status(400).json({ error: 'Specified project does not exist!' });
+            }
+            const projectToUpdate = userFound.projectDetail[projectIndex];
+            if (!projectToUpdate.isValid) {
+                return res.status(404).json({ error: 'Specified project does not exist!' });
+            }
+            userModel.findOneAndUpdate(
+                { 'personalDetail.username': username, 'projectDetail._id': _id },
+                {
+                $set: {
+                    'projectDetail.$.projectName': projectName ||projectToUpdate.projectName,
+                    'projectDetail.$.description': description ||projectToUpdate.description,
+                    'projectDetail.$.projectLink': projectLink ||projectToUpdate.projectLink
+                },
+                },
+                { new: true })
+                .then((infoUpdated) => {
+                    if (!infoUpdated) {
+                    return res.status(400).json({ error: 'User not found!' });
+                    }
+                    res.json({ message: 'Project details updated successfully!', detail: infoUpdated.projectDetail[projectIndex] });
+                })
+                .catch((err) => {
+                    console.error(err);
+                    res.status(500).json({ error: 'Internal server error' });
+                }
+            );
+        })
+    }
+    else{
+        res.json({error : "Fields empty!"}); //better error message (issue)
+    }
+})
+
 module.exports = router
