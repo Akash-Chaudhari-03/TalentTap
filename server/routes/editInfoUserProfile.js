@@ -185,4 +185,49 @@ router.post('/certificateDetail', (req,res) => {
     }
 })
 
+//edit project
+router.post('/projectDetail', (req,res) => {
+    const {username, _id, projectName, description, projectLink} = req.body;
+    if(username && _id && (projectName || description || projectLink)){
+        userModel.findOne({ 'personalDetail.username' : username})
+        .then((userFound) => {
+            if(!userFound){
+                return res.status(400).json({error : "User not found!"});
+            }
+            const projectIndex = userFound.projectDetail.findIndex((project) => project._id.toString() === _id);
+            if (projectIndex === -1) {
+                return res.status(400).json({ error: 'Specified project does not exist!' });
+            }
+            const projectToUpdate = userFound.projectDetail[projectIndex];
+            if (!projectToUpdate.isValid) {
+                return res.status(404).json({ error: 'Specified project does not exist!' });
+            }
+            userModel.findOneAndUpdate(
+                { 'personalDetail.username': username, 'projectDetail._id': _id },
+                {
+                $set: {
+                    'projectDetail.$.projectName': projectName ||projectToUpdate.projectName,
+                    'projectDetail.$.description': description ||projectToUpdate.description,
+                    'projectDetail.$.projectLink': projectLink ||projectToUpdate.projectLink
+                },
+                },
+                { new: true })
+                .then((infoUpdated) => {
+                    if (!infoUpdated) {
+                    return res.status(400).json({ error: 'User not found!' });
+                    }
+                    res.json({ message: 'Project details updated successfully!', detail: infoUpdated.projectDetail[projectIndex] });
+                })
+                .catch((err) => {
+                    console.error(err);
+                    res.status(500).json({ error: 'Internal server error' });
+                }
+            );
+        })
+    }
+    else{
+        res.json({error : "Fields empty!"}); //better error message (issue)
+    }
+})
+
 module.exports = router
