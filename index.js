@@ -7,7 +7,7 @@ const loginUser = require('./server/routes/login');
 const updateUserProfile = require('./server/routes/addInfoUserProfile');
 const deleteInfoUserProfile = require('./server/routes/deleteInfoUserProfile');
 const getUserDetails = require('./server/routes/getUserDetails');
-const editUserDetails = require('.server/routes/editInfoUserProfile');
+const editUserDetails = require('./server/routes/editInfoUserProfile');
 
 
 const app = express();

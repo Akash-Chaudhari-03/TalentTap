@@ -39,8 +39,6 @@
             return res.json();
         })
         .then(data => {
-            // console.log(data.username);
-            // document.getElementById('test').innerHTML = data.username; ///imp
             if(data.error) {
                 document.getElementById('error').innerHTML = data.error
             }
@@ -48,7 +46,7 @@
                 console.log(data.message)
                 let dataToLocal = {'username' : data.details.username}
                 window.localStorage.setItem('dataToLocal', JSON.stringify(dataToLocal));
-                window.location.href = 'dashboard.html';
+                window.location.href = 'editable.html';
             }
         })
         .catch(err => {
@@ -62,6 +60,7 @@
         const requiredData = new Object;
         requiredData.id = id;
         requiredData.password = password;
+        console.log(requiredData)
         loginUser(requiredData);
     }
 </script>

@@ -12,22 +12,22 @@ router.post('/user', (req,res) => {
                 userModel.findOne({'personalDetail.username' : req.body.id, 'personalDetail.password' : req.body.password}).exec()
                 .then((data => {
                     if(data == null){
-                        res.json("Invalid credentials!");
+                        res.json({error : "Invalid credentials!"});
                     }
                     else {
-                        res.json("Login successful!")
+                        res.json({message : "Login successful", details : data.personalDetail})
                     }
                 }))
-                .catch((error) => res.json("Some error occurred!"))
+                .catch((error) => res.json({error : "Some error occurred!"}))
             }
             else {
-                res.json("Login successful!")
+                res.json({message : "Login successful", details : data.personalDetail})
             }
         }))
-        .catch((error) => res.json("Some error occurred!"))
+        .catch((error) => res.json({error: "Some error occurred!"}))
     }
     else {
-        res.json("All fields required!");
+        res.json({error: "All fields required!"});
     }
 })
 

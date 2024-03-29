@@ -11,7 +11,16 @@ router.post('/getDetails', (req, res) => {
             res.json("User not found!");
         }
         else{
-            res.json(data);
+            //wriite code here
+            const filteredData = {
+                ...data._doc, // Spread personal details
+                collegeDetail: data.collegeDetail.filter(college => college.isValid), // Filter valid colleges
+                certificationDetail: data.certificationDetail.filter(certification => certification.isValid), // Filter valid certifications
+                projectDetail: data.projectDetail.filter(project => project.isValid), // Filter valid projects
+                skillDetail: data.skillDetail.filter(skill => skill.isValid), // Filter valid skills
+              };
+              
+              res.json(filteredData);
         }
     })
     .catch(error => res.json('Oops! Some error occured!'))
