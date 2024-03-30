@@ -1,0 +1,35 @@
+body{
+    background-color: #f2f2f2;
+}
+.user{
+
+    display: inline-flex;
+}
+.button{
+    position: absolute;
+    top: 18px;
+    right: 50px;
+    border-radius: 100%;
+    text-align: center;
+    height: 40px;
+    width: 40px;
+    
+    
+    
+}
+.hello{
+    font-size: 50px;
+    margin-left: 50px;
+    margin-top: 50px;
+}
+.btn{
+    margin-top: -5px;
+}
+.button:hover{
+    background-color: rgb(226, 250, 251);
+    box-shadow: 1px 1px 1px;
+}
+.img{
+   margin-top: -3px;
+   margin-left: -8px;
+}
