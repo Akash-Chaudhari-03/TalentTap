@@ -46,7 +46,7 @@
                 console.log(data.message)
                 let dataToLocal = {'username' : data.details.username}
                 window.localStorage.setItem('dataToLocal', JSON.stringify(dataToLocal));
-                window.location.href = 'editable.html';
+                window.location.href = 'dashboard.html';
             }
         })
         .catch(err => {

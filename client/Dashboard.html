@@ -8,14 +8,20 @@
 </head>
 <body>
     <div class="user">
-        <div class="hello">Hello, </div>
+        <div id="hello" class="hello"></div>
         
     </div>
-    <button class="button">
+    <button class="button" onclick="redirect()">
         <img class="img" src="images/user.png" height="40px" width="40px">
         
     </button>
     
     
 </body>
+<script>
+    document.getElementById('hello').innerHTML = "Hello, " + JSON.parse(window.localStorage.getItem('dataToLocal')).username
+    const redirect = () => {
+        window.location.href = "editable.html"
+    }
+</script>
 </html>

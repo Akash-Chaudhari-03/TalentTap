@@ -36,6 +36,7 @@
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
+    margin-left: auto;
   }
   .edit-button:hover {
     background-color: #0056b3;
@@ -72,12 +73,66 @@
   align-items: center; /* Align items vertically */
 }
 .profile-section{
-  border: 2px solid black
+  border: 2px solid black;
+  padding: 10px
 }
 .skill-container, .project-container{
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border: 2px solid red;
+  margin-top: 10px;
+  padding: 10px;
+  border-bottom: 1px solid rgb(212, 210, 210);
+}
+.profile-section h2 {
+  display: flex;
+  align-items: center; /* Align elements vertically */
+  justify-content: space-between; /* Space out elements evenly */
+}
+
+.add-button {
+  position: relative; /* Position relative to the h2 */
+  top: -5px; /* Adjust for vertical alignment */
+}
+
+.skill-container {
+  position: relative; /* Allow positioning of Edit button */
+}
+
+.skill-container .edit-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.profile-section h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.add-button {
+  position: relative;
+  top: -5px;
+}
+
+.project-container {
+  position: relative;
+}
+
+.project-container .edit-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.text-wrapper{
+  margin-right: 50px;
+}
+.certificate-container {
+  position: relative;
+}
+
+.certificate-container .edit-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
 }
 
 </style>
@@ -95,14 +150,13 @@
       <button class="edit-button" onclick="editDetails('personal-details')">Edit</button>
     </div>
     <div class="profile-content">
-      <p><strong>Email:</strong> <span id="email">user@example.com</span></p>
-      <p><strong>Password:</strong> <span id="password">********</span></p>
-      <p><strong>Username:</strong> <span id="username">user123</span></p>
-      <p><strong>First Name:</strong> <span id="first-name">John</span></p>
-      <p><strong>Last Name:</strong> <span id="last-name">Doe</span></p>
-      <p><strong>Location:</strong> <span id="location">New York</span></p>
-      <p><strong>Bio:</strong> <span id="bio">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span></p>
-      <p><strong>Contact:</strong> <span id="contact">1234567890</span></p>
+      <p id="email"><strong>Email: </strong><span id="email-value"></span></p>
+      <p id="username"><strong>Username: </strong><span id="username-value"></span></p>
+      <p id="fname"><strong>FirstName: </strong><span id="fname-value"></span> </p>
+      <p id="lname"><strong>LastName: </strong><span id="lname-value"></span></p>
+      <p id="location"><strong>Location: </strong><span id="location-value"></span> </p>
+      <p id="bio"><strong>Bio: </strong><span id="bio-value"></span></p>
+      <p id="contact"><strong>Contact: </strong><span id="contact-value"></span></p>
       <button class="save-button" style="display: none;" onclick="saveDetails('personal-details')">Save</button>
     </div>
   </div>
@@ -110,31 +164,24 @@
 
   <div class="profile-section" id="college-details">
     <h2>College Details <button class="edit-button" onclick="editDetails('college-details')">Edit</button></h2>
-    <p><strong>College Name:</strong> <span id="college-name">XYZ College</span></p>
-    <p><strong>College Location:</strong> <span id="college-location">New York</span></p>
-    <p><strong>Branch:</strong> <span id="branch">Computer Science</span></p>
-    <p><strong>Year:</strong> <span id="year">2022</span></p>
-    <p><strong>Stream:</strong> <span id="stream">Engineering</span></p>
-    <p><strong>isValid:</strong> <span id="college-valid">Yes</span></p>
+    <p id="cname"><strong>College Name:</strong></p>
+    <p id="clocation"><strong>College Location:</strong></p>
+    <p id="cbranch"><strong>Branch:</strong></p>
+    <p id="cyear"><strong>Year:</strong></p>
+    <p id="cstream"><strong>Stream:</strong></p>
     <button class="save-button" style="display: none;" onclick="saveDetails('college-details')">Save</button>
   </div>
 
   <div class="profile-section" id="Skill-details">
-    <h2>Skill Details <button class="edit-button" onclick="editDetails('certification-details')">Edit</button></h2>
-    
+    <h2>Skill Details <button class="edit-button" onclick="editDetails('skill-details')">+</button></h2>
   </div>
 
    <div class="profile-section" id="Project-details">
-    <h2>Project Details <button class="edit-button" onclick="editDetails('Project-details')">Edit</button></h2>
-    
+    <h2>Project Details <button class="edit-button" onclick="editDetails('Project-details')">+</button></h2>
   </div>
 
-  <div class="profile-section" id="Skill-details">
-    <h2>Certification Details <button class="edit-button" onclick="editDetails('Skill-details')">Edit</button></h2>
-    <p><strong>Certification Name:</strong> <span id="skill">java</span></p>
-    <p><strong>Organization:</strong> <span id="experience">internship with google</span></p>
-    <p><strong>isValid:</strong> <span id="college-valid">Yes</span></p>
-    <button class="save-button" style="display: none;" onclick="saveDetails('Skill-details')">Save</button>
+  <div class="profile-section" id="Certification-details">
+    <h2>Certification Details <button class="edit-button" onclick="editDetails('certification-details')">+</button></h2>
   </div> 
 
   <!-- Similar sections for certification, project details, and skill details -->
@@ -158,6 +205,22 @@
         return res.json();
     })
     .then(data => {
+      //personal detail
+      console.log(data)
+      document.getElementById('email-value').textContent = data.personalDetail.email;
+      document.getElementById('username-value').textContent = data.personalDetail.username;
+      document.getElementById('fname-value').textContent = data.personalDetail.firstName;
+      document.getElementById('lname-value').textContent = data.personalDetail.lastName;
+      document.getElementById('location-value').textContent = data.personalDetail.location;
+      document.getElementById('bio-value').textContent = data.personalDetail.bio;
+      document.getElementById('contact-value').textContent = data.personalDetail.contact;
+
+      //college details
+      document.getElementById('cname').innerHTML = `<strong>College: </strong>` + data.collegeDetail[0].collegeName;
+      document.getElementById('clocation').innerHTML = `<strong>Location: </strong>` + data.collegeDetail[0].collegeLocation;
+      document.getElementById('cbranch').innerHTML = `<strong>Branch: </strong>` + data.collegeDetail[0].branch;
+      document.getElementById('cstream').innerHTML = `<strong>Stream: </strong>` + data.collegeDetail[0].stream;
+      document.getElementById('cyear').innerHTML = `<strong>Year: </strong>` + data.collegeDetail[0].year;
       //skills
       const skillDetailsContainer = document.getElementById('Skill-details');
       data.skillDetail.forEach(skill => {
@@ -165,14 +228,16 @@
         skillContainer.className = 'skill-container';
         const skillElement = document.createElement('div');
         skillElement.className = 'skill';
-        skillElement.textContent = `Skill: ${skill.skill}`;
+        skillElement.innerHTML = `<b>Skill:</b> ${skill.skill}`;
         const experienceElement = document.createElement('div');
         experienceElement.className = 'experience';
-        experienceElement.textContent = `Experience: ${skill.experience} years`;
-        skillContainer.append(skillElement, experienceElement);
+        experienceElement.innerHTML = `<b>Experience:</b> ${skill.experience} years`;
         const editButton = document.createElement('button');
-        editButton.textContent = 'Edit';
-        skillContainer.appendChild(editButton);
+        editButton.textContent = 'Edit'
+        editButton.classList.add('edit-button'); // Add a class for styling
+        editButton.style.backgroundColor = 'grey';
+        skillContainer.appendChild(editButton); // Add the Edit button first
+        skillContainer.append(skillElement, experienceElement);
         skillDetailsContainer.appendChild(skillContainer);
       });
 
@@ -183,17 +248,63 @@
         projectContainer.className = 'project-container';
         const nameElement = document.createElement('div');
         nameElement.className = 'name';
-        nameElement.textContent = `Project Name: ${project.projectName}`;
+        nameElement.innerHTML = `<b>Project Name:</b> ${project.projectName}`;
         const descElement = document.createElement('div');
         descElement.className = 'description';
-        descElement.textContent = `Description: ${project.description}`;
+        descElement.innerHTML = `<b>Description:</b> ${project.description}`;
         const linkElement = document.createElement('div');
         linkElement.className = 'link';
-        linkElement.textContent = `Project Link: ${project.projectLink}`;
+        linkElement.innerHTML = `<b>Project Link:</b> ${project.projectLink}`;
         const editButton = document.createElement('button');
         editButton.textContent = 'Edit';
-        projectContainer.append(nameElement, descElement, linkElement, editButton);
+        editButton.classList.add('edit-button'); // Add a class for styling
+        editButton.style.backgroundColor = 'grey';
+        // Create a wrapper element for the text content
+        const textWrapper = document.createElement('div');
+        textWrapper.className = 'text-wrapper';
+        // Append text elements to the wrapper
+        textWrapper.append(nameElement, descElement, linkElement);
+        // Append the Edit button to the project container (for top-right positioning)
+        projectContainer.appendChild(editButton);
+        // Append the text wrapper to the project container
+        projectContainer.appendChild(textWrapper);
         projectDetailsContainer.appendChild(projectContainer);
+      });
+
+
+
+      //certifications
+      const certificateDetailsContainer = document.getElementById('Certification-details');
+      data.certificationDetail.forEach(certificate => {
+        const certificateContainer = document.createElement('div');
+        certificateContainer.className = 'certificate-container';
+        const certName = document.createElement('div');
+        certName.className = 'name';
+        certName.innerHTML = `<b>Certification Name:</b> ${certificate.certificateName}`;
+        const orgName = document.createElement('div');
+        orgName.className = 'org';
+        orgName.innerHTML = `<b>Organization:</b> ${certificate.organization}`;
+        const issueDate = document.createElement('div');
+        issueDate.className = 'issue';
+        issueDate.innerHTML = `<b>Issue Date:</b> ${certificate.issueDate.substring(0,10)}`;
+        const expiryDate = document.createElement('div');
+        expiryDate.className = 'expiry';
+        if (certificate.expiryDate) {
+          expiryDate.innerHTML = `<b>Expiry Date:</b> ${certificate.expiryDate.substring(0,10)}`;
+        }
+        const certLink = document.createElement('a');
+        const xyz = certificate.credentialLink;
+        certLink.className = 'clink';
+        certLink.textContent = `${certificate.credentialLink}`;
+        certLink.href = certificate.credentialLink;
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.classList.add('edit-button'); // Add a class for styling
+        editButton.style.backgroundColor = 'grey';
+        // Add the Edit button first for top-right positioning
+        certificateContainer.appendChild(editButton);
+        certificateContainer.append(certName, orgName, issueDate, expiryDate, certLink);
+        certificateDetailsContainer.appendChild(certificateContainer);
       });
     })
     .catch(err => {
@@ -212,16 +323,26 @@
     const section = document.getElementById(sectionId);
     const editButton = section.querySelector('.edit-button');
     const saveButton = section.querySelector('.save-button');
-    const spans = section.querySelectorAll('span');
-
-    spans.forEach(span => {
+    section.querySelectorAll('span').forEach(span => {
       const input = document.createElement('input');
       input.type = 'text';
       input.value = span.textContent;
-      span.innerHTML = '';
-      span.appendChild(input);
-    });
+      span.style.display = 'none'; // Hide span initially
+      input.style.display = 'inline-block'; // Show input initially
 
+      // Update content on input change (optional for real-time preview)
+      input.addEventListener('input', () => {
+        span.textContent = input.value;
+      });
+
+      // Restore content and hide input on save
+      saveButton.addEventListener('click', () => {
+        span.textContent = span.dataset.originalValue;
+        span.style.display = 'inline-block';
+        input.style.display = 'none';
+      });
+      span.parentNode.appendChild(input); // Append input after span
+    });
     editButton.style.display = 'none';
     saveButton.style.display = 'inline-block';
   }
