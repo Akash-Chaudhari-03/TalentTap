@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Profile</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+  }
+  .container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  h2 {
+    color: #333;
+  }
+  .profile-section {
+    margin-bottom: 20px;
+  }
+  .profile-section h3 {
+    margin-bottom: 10px;
+    color: #666;
+  }
+  .edit-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .edit-button:hover {
+    background-color: #0056b3;
+  }
+  .save-button {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .save-button:hover {
+    background-color: #218838;
+  }
+  .profile-content {
+  display: block; /* Initially visible */
+}
+
+.profile-content.hidden {
+  display: none; /* Hidden content */
+}
+
+.collapse-button i {
+  transition: transform 0.2s ease-in-out; /* Smooth transition for icon */
+}
+
+.profile-content.hidden .collapse-button i {
+  transform: rotate(180deg); /* Rotate icon on collapse */
+}
+.profile-header {
+  display: flex; /* Enable Flexbox */
+  justify-content: space-between; /* Align items horizontally */
+  align-items: center; /* Align items vertically */
+}
+.profile-section{
+  border: 2px solid black;
+  padding: 10px
+}
+.skill-container, .project-container{
+  margin-top: 10px;
+  padding: 10px;
+  border-bottom: 1px solid rgb(212, 210, 210);
+}
+.profile-section h2 {
+  display: flex;
+  align-items: center; /* Align elements vertically */
+  justify-content: space-between; /* Space out elements evenly */
+}
+
+.add-button {
+  position: relative; /* Position relative to the h2 */
+  top: -5px; /* Adjust for vertical alignment */
+}
+
+.skill-container {
+  position: relative; /* Allow positioning of Edit button */
+}
+
+.skill-container .edit-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.profile-section h2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.add-button {
+  position: relative;
+  top: -5px;
+}
+
+.project-container {
+  position: relative;
+}
+
+.project-container .edit-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.text-wrapper{
+  margin-right: 50px;
+}
+.certificate-container {
+  position: relative;
+}
+
+.certificate-container .edit-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+</style>
+</head>
+<body onload="getUserInfo()">
+
+<div class="container">
+  <div class="profile-section" id="personal-details">
+    <div class="profile-header">
+      <h2>
+        Personal Details
+        <button class="collapse-button" onclick="toggle()">
+          <i class="fas fa-chevron-down">></i> </button>
+      </h2>
+      <button class="edit-button" onclick="editDetails('personal-details')">Edit</button>
+    </div>
+    <div class="profile-content">
+      <p id="email">
+        <strong>Email: </strong>
+        <span id="email-value"></span>
+      </p>
+      <p id="username"><strong>Username: </strong><span id="username-value"></span></p>
+      <p id="fname"><strong>FirstName: </strong><span id="fname-value"></span> </p>
+      <p id="lname"><strong>LastName: </strong><span id="lname-value"></span></p>
+      <p id="location"><strong>Location: </strong><span id="location-value"></span> </p>
+      <p id="bio"><strong>Bio: </strong><span id="bio-value"></span></p>
+      <p id="contact"><strong>Contact: </strong><span id="contact-value"></span></p>
+      <button class="save-button" style="display: none;" onclick="saveDetails('personal-details')">Save</button>
+    </div>
+  </div>
+  
+
+  <div class="profile-section" id="college-details">
+    <h2>College Details <button class="edit-button" onclick="editDetails('college-details')">Edit</button></h2>
+    <p id="cname"></p>
+    <p id="clocation"></p>
+    <p id="cbranch"></p>
+    <p id="cyear"></p>
+    <p id="cstream"></p>
+    <button class="save-button" style="display: none;" onclick="saveDetails('college-details')">Save</button>
+  </div>
+
+  <div class="profile-section" id="Skill-details">
+    <h2>Skill Details <button class="edit-button" onclick="editDetails('skill-details')">+</button></h2>
+  </div>
+
+   <div class="profile-section" id="Project-details">
+    <h2>Project Details <button class="edit-button" onclick="editDetails('Project-details')">+</button></h2>
+  </div>
+
+  <div class="profile-section" id="Certification-details">
+    <h2>Certification Details <button class="edit-button" onclick="editDetails('certification-details')">+</button></h2>
+  </div> 
+
+  <!-- Similar sections for certification, project details, and skill details -->
+
+
+<script>
+  userSession = JSON.parse(window.localStorage.getItem('dataToLocal'));
+  console.log(userSession.username)
+  // console.log(userId)
+  //new
+  const getUserInfo = () => {
+    
+    return fetch('http://localhost:3000/userInfo/getDetails', {
+        method : 'POST',
+        headers : {'Content-Type' : 'application/json'},
+        body : JSON.stringify({
+            username : userSession.username
+        })
+    })
+    .then(res => {
+        return res.json();
+    })
+    .then(data => {
+      //personal detail
+      console.log(data)
+      document.getElementById('email-value').innerHTML = data.personalDetail.email;
+      document.getElementById('username-value').innerHTML = data.personalDetail.username;
+      document.getElementById('fname-value').innerHTML = data.personalDetail.firstName;
+      document.getElementById('lname-value').innerHTML = data.personalDetail.lastName;
+      document.getElementById('location-value').innerHTML = data.personalDetail.location;
+      document.getElementById('bio-value').innerHTML = data.personalDetail.bio;
+      document.getElementById('contact-value').innerHTML = data.personalDetail.contact;
+
+      //college details
+      document.getElementById('cname').innerHTML = `<strong>College: </strong>` + data.collegeDetail[0].collegeName;
+      document.getElementById('clocation').innerHTML = `<strong>Location: </strong>` + data.collegeDetail[0].collegeLocation;
+      document.getElementById('cbranch').innerHTML = `<strong>Branch: </strong>` + data.collegeDetail[0].branch;
+      document.getElementById('cstream').innerHTML = `<strong>Stream: </strong>` + data.collegeDetail[0].stream;
+      document.getElementById('cyear').innerHTML = `<strong>Year: </strong>` + data.collegeDetail[0].year;
+      //skills
+      const skillDetailsContainer = document.getElementById('Skill-details');
+      data.skillDetail.forEach(skill => {
+        const skillContainer = document.createElement('div');
+        skillContainer.className = 'skill-container';
+        const skillElement = document.createElement('div');
+        skillElement.className = 'skill';
+        skillElement.innerHTML = `<b>Skill:</b> ${skill.skill}`;
+        const experienceElement = document.createElement('div');
+        experienceElement.className = 'experience';
+        experienceElement.innerHTML = `<b>Experience:</b> ${skill.experience} years`;
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit'
+        editButton.classList.add('edit-button'); // Add a class for styling
+        editButton.style.backgroundColor = 'grey';
+        skillContainer.appendChild(editButton); // Add the Edit button first
+        skillContainer.append(skillElement, experienceElement);
+        skillDetailsContainer.appendChild(skillContainer);
+      });
+
+      //project
+      const projectDetailsContainer = document.getElementById('Project-details');
+      data.projectDetail.forEach(project => {
+        const projectContainer = document.createElement('div');
+        projectContainer.className = 'project-container';
+        const nameElement = document.createElement('div');
+        nameElement.className = 'name';
+        nameElement.innerHTML = `<b>Project Name:</b> ${project.projectName}`;
+        const descElement = document.createElement('div');
+        descElement.className = 'description';
+        descElement.innerHTML = `<b>Description:</b> ${project.description}`;
+        const linkElement = document.createElement('div');
+        linkElement.className = 'link';
+        linkElement.innerHTML = `<b>Project Link:</b> ${project.projectLink}`;
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.classList.add('edit-button'); // Add a class for styling
+        editButton.style.backgroundColor = 'grey';
+        // Create a wrapper element for the text content
+        const textWrapper = document.createElement('div');
+        textWrapper.className = 'text-wrapper';
+        // Append text elements to the wrapper
+        textWrapper.append(nameElement, descElement, linkElement);
+        // Append the Edit button to the project container (for top-right positioning)
+        projectContainer.appendChild(editButton);
+        // Append the text wrapper to the project container
+        projectContainer.appendChild(textWrapper);
+        projectDetailsContainer.appendChild(projectContainer);
+      });
+
+
+
+      //certifications
+      const certificateDetailsContainer = document.getElementById('Certification-details');
+      data.certificationDetail.forEach(certificate => {
+        const certificateContainer = document.createElement('div');
+        certificateContainer.className = 'certificate-container';
+        const certName = document.createElement('div');
+        certName.className = 'name';
+        certName.innerHTML = `<b>Certification Name:</b> ${certificate.certificateName}`;
+        const orgName = document.createElement('div');
+        orgName.className = 'org';
+        orgName.innerHTML = `<b>Organization:</b> ${certificate.organization}`;
+        const issueDate = document.createElement('div');
+        issueDate.className = 'issue';
+        issueDate.innerHTML = `<b>Issue Date:</b> ${certificate.issueDate.substring(0,10)}`;
+        const expiryDate = document.createElement('div');
+        expiryDate.className = 'expiry';
+        if (certificate.expiryDate) {
+          expiryDate.innerHTML = `<b>Expiry Date:</b> ${certificate.expiryDate.substring(0,10)}`;
+        }
+        const certLink = document.createElement('a');
+        const xyz = certificate.credentialLink;
+        certLink.className = 'clink';
+        certLink.textContent = `${certificate.credentialLink}`;
+        certLink.href = certificate.credentialLink;
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.classList.add('edit-button'); // Add a class for styling
+        editButton.style.backgroundColor = 'grey';
+        // Add the Edit button first for top-right positioning
+        certificateContainer.appendChild(editButton);
+        certificateContainer.append(certName, orgName, issueDate, expiryDate, certLink);
+        certificateDetailsContainer.appendChild(certificateContainer);
+      });
+    })
+    .catch(err => {
+        console.log(err.message);
+    })
+  } 
+  //new
+//collapse button
+  const collapseButton = document.querySelector('.collapse-button');
+  const profileContent = document.querySelector('.profile-content');
+  collapseButton.addEventListener('click', () => {
+    profileContent.classList.toggle('hidden'); // Toggles 'hidden' class on click
+  });
+
+  function editDetails(sectionId) {
+  const section = document.getElementById(sectionId);
+  const editButton = section.querySelector('.edit-button');
+  const saveButton = section.querySelector('.save-button');
+  section.querySelectorAll('p').forEach(p => {
+    console.log(p.id);
+    const span = p.querySelector('span'); // Get the span within the p tag
+    if (span) {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = p.id;
+      console.log(input);
+      input.setAttribute('value', span.innerHTML);
+      // Replace span content with input, but keep strong tag intact
+      p.innerHTML = p.querySelector('strong').outerHTML + input.outerHTML;
+      span.remove(); // Remove the original span
+
+      // Focus on the first input
+      if (p === section.querySelector('p')) { // Check if it's the first paragraph
+        input.focus();
+      }
+    }
+  });
+
+  // Show save button with green color
+  saveButton.style.display = 'inline-block';
+  saveButton.style.backgroundColor = 'green';
+  // Hide edit button (assuming it's already defined elsewhere)
+  editButton.style.display = 'none';
+}
+
+
+function saveDetails(sectionId) {
+  const section = document.getElementById(sectionId);
+  const editButton = section.querySelector('.edit-button');
+  const saveButton = section.querySelector('.save-button');
+  const inputs = section.querySelectorAll('input');
+
+  // Create an empty object to store data
+  const formData = {};
+
+  inputs.forEach(input => {
+    console.log(input)
+    const span = document.createElement('span');
+    span.textContent = input.value;
+    formData[input.id] = input.value; // Replace 'id' with the appropriate attribute if different
+
+    
+
+    input.parentNode.replaceChild(span, input);
+  });
+  console.log(formData.fname);
+  return fetch('http://localhost:3000/userInfo/editDetails/editPersonalDetail', {
+      method : 'POST',
+      headers : {'Content-Type' : 'application/json'},
+      body : JSON.stringify({
+          username : formData.username,
+          firstName : formData.fname,
+          lastName : formData.lname,
+          location : formData.location,
+          bio : formData.bio,
+          contact : formData.contact
+      })
+  })
+  .then(res => {
+    return res.json();
+  })
+  .then(data => {
+    console.log(data);
+    getUserInfo();
+    editButton.style.display = 'inline-block';
+    saveButton.style.display = 'none';
+  })
+  .catch(err => {
+    console.log(err.message);
+  })
+  editButton.style.display = 'inline-block';
+  saveButton.style.display = 'none';
+}
+
+</script>
+
+</body>
+</html>
+
+
+<!-- inputs.forEach(input => {
+     const span = document.createElement('span');
+     span.textContent = input.value;
+     input.parentNode.replaceChild(span, input);
+   }); -->
+  

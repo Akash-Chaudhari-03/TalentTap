@@ -30,7 +30,7 @@ app.use('/login', loginUser);
 app.use('/userInfo', getUserDetails);
 app.use('/userInfo/addDetails', updateUserProfile);
 app.use('/userInfo/deleteDetails', deleteInfoUserProfile);
-app.use('/editInfoUserProfile', editUserDetails);
+app.use('/userInfo/editDetails', editUserDetails);
 
 //listening to server at port
 app.listen(PORT, () => console.log(`server running on http://localhost:${PORT}`));
