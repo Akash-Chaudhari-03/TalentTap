@@ -26,7 +26,7 @@
         <b> <div class="text">Sign in with Google</div></b> 
     </button>
     <div class="sign">
-        <a href="#">Sign Up/In</a>
+        <a href="./login.html">Sign Up/In</a>
     </div>
 </div>
 </body>
@@ -48,7 +48,7 @@
             return res.json();
         })
         .then(data => {
-            console.log(data);
+            window.location.href = 'login.html'
         })
         .catch(err => {
             console.log("some error occurred!");
