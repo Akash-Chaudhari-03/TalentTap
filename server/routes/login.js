@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const userModel = require('../schema/users');
-const bcrypt = require('bcrypt');  // Assuming bcrypt is used for hashing passwords
+const bcrypt = require('bcrypt'); 
 
 // Login existing user
 router.post('/user', (req, res) => {
