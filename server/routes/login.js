@@ -1,9 +1,27 @@
 // Imports
+
 const express = require('express');
 const router = express.Router();
 const userModel = require('../schema/users');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const logger = require('../../logger'); // Import Winston logger instance
+const dotenv = require('dotenv');
+dotenv.config();
+
+// Access SECRET_KEY
+const secretKey = process.env.SECRET_KEY;
+
+// Function to generate JWT token
+function generateToken(user) {
+    const payload = {
+        id: user._id,
+        email: user.personalDetail.email,
+        username: user.personalDetail.username
+    };
+    const token = jwt.sign(payload, secretKey, { expiresIn: '1h' }); // Token expires in 1 hour
+    return token;
+}
 
 // Login existing user
 router.post('/user', async (req, res) => {
@@ -45,8 +63,9 @@ router.post('/user', async (req, res) => {
             // Validate password
             const isValidPassword = await validateCredentials(userByUsername);
             if (isValidPassword) {
+                const token = generateToken(userByUsername);
                 logger.info(`Login successful for username: ${userByUsername.personalDetail.username}`);
-                res.json({ message: "Login successful", details: sanitizeUserDetails(userByUsername) });
+                res.json({ message: "Login successful", token, details: sanitizeUserDetails(userByUsername) });
             } else {
                 logger.warn(`Login failed: Invalid credentials for ID: ${id}`);
                 res.json({ error: "Invalid credentials!" });
@@ -55,8 +74,9 @@ router.post('/user', async (req, res) => {
             // Validate password
             const isValidPassword = await validateCredentials(userByEmail);
             if (isValidPassword) {
+                const token = generateToken(userByEmail);
                 logger.info(`Login successful for email: ${userByEmail.personalDetail.email}`);
-                res.json({ message: "Login successful", details: sanitizeUserDetails(userByEmail) });
+                res.json({ message: "Login successful", token, details: sanitizeUserDetails(userByEmail) });
             } else {
                 logger.warn(`Login failed: Invalid credentials for ID: ${id}`);
                 res.json({ error: "Invalid credentials!" });
