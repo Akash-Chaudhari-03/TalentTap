@@ -1,27 +1,27 @@
-// Middleware function to verify JWT token
-const express = require('express');
-const router = express.Router();
+const jwt = require('jsonwebtoken');
+const logger = require('../../logger');
 
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers.authorization;
-
     if (!authHeader) {
-        logger.error('JWT verification failed: Token not provided');
+        logger.error('Unauthorized: Token not provided');
         return res.status(401).json({ error: "Unauthorized: Token not provided" });
     }
 
-    // Extract the token from the "Bearer <token>" format
-    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+        logger.error('Unauthorized: Token format invalid');
+        return res.status(401).json({ error: "Unauthorized: Token format invalid" });
+    }
 
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-
         if (err) {
             logger.error(`JWT verification failed: ${err.message}`);
             return res.status(401).json({ error: "Unauthorized: Invalid token" });
         }
-        req.user = decoded; // Set decoded user information in request object
+        req.user = decoded;
         next();
     });
 };
 
-module.exports = router
+module.exports = verifyToken;
