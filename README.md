@@ -16,24 +16,16 @@ TalentTap is a platform designed to empower students by showcasing their skills,
 
 ## Installation
 
-To run TalentTap locally, follow these steps:
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/talenttap.git
-   cd talenttap
-
-
-## Getting started
-1. Clone this repository to your local machine 
+1. **Clone this repository to your local machine :**
 ```
-https://github.com/kanscerr/TalentTap.git
+git clone https://github.com/your-username/talenttap.git
+cd talenttap
 ```
-2. If you want to explore the backend functionalities, navigate to the server folder and examine the routes and schemas 
+2. **If you want to explore the backend functionalities, navigate to the server folder and examine the routes and schemas :**
 ```
 cd ./server
 ```
-3. Navigate to the client folder to access the user interface
+3. **Navigate to the client folder to access the user interface : **
 ```
 cd ./client
 ```
