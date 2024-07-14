@@ -15,6 +15,7 @@ const personalDetail = new mongoose.Schema({
 })
 
 const collegeDetail = new mongoose.Schema({
+    college_id : String,
     collegeName : String,
     collegeLocation : String,
     branch : String,
@@ -24,6 +25,7 @@ const collegeDetail = new mongoose.Schema({
 })
 
 const certificationDetail = new mongoose.Schema({
+    certificate_id : String,
     certificateName : String,
     organization : String,
     issueDate : Date,
@@ -33,6 +35,7 @@ const certificationDetail = new mongoose.Schema({
 })
 
 const projectDetail = new mongoose.Schema({
+    project_id : String,
     projectName : String,
     description : String,
     projectLink : String,
@@ -40,6 +43,7 @@ const projectDetail = new mongoose.Schema({
 })
 
 const skillDetail = new mongoose.Schema({
+    skill_id : String,
     skill : String,
     experience : Number,
     isValid : { type: Boolean, default: true }
