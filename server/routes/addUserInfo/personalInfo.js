@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../../schema/users');
 const logger = require('../../../logger'); 
-const verifyToken = require('../verifytokens');
+const verifyToken = require('../utils/verifytokens');
 
 // Personal details endpoint with JWT middleware and logging
 router.post('/', verifyToken, (req, res) => {

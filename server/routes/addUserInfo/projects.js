@@ -4,9 +4,10 @@ const userModel = require('../../schema/users');
 const { body, validationResult } = require('express-validator');
 const logger = require('../../../logger');
 const generateUniqueId = require('../utils/generateId');
+const verifyToken = require('../utils/verifytokens');
 
 // Endpoint to add project details
-router.post('/', [
+router.post('/', verifyToken, [
     // Validate inputs using express-validator
     body('username').notEmpty().withMessage('Username is required'),
     body('projectName').notEmpty().withMessage('Project Name is required'),
@@ -29,7 +30,7 @@ router.post('/', [
                 return res.status(404).json({ message: 'User not found!' });
             } else {
                 // Generate project_id using generateUniqueId function
-                const project_id = generateUniqueId('project', username);
+                const project_id = generateUniqueId('PROJ', username);
 
                 const newProject = {
                     project_id,
@@ -40,12 +41,11 @@ router.post('/', [
 
                 return userModel.updateOne(
                     { 'personalDetail.username': username },
-                    { $push: { projectDetail: newProject } },
-                    { new: true }
+                    { $push: { projectDetail: newProject } }
                 )
-                .then(updatedData => {
+                .then(() => {
                     logger.info(`New project added successfully for username: ${username}`);
-                    res.json({ message: 'New project added successfully!', data: updatedData.projectDetail });
+                    res.json({ message: 'New project added successfully!' });
                 })
                 .catch(error => {
                     logger.error(`Error adding project for username: ${username}, Error: ${error.message}`);

@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const userModel = require('../../schema/users');
-const verifyToken = require('../verifytokens');
+const verifyToken = require('../utils/verifytokens');
 const logger = require('../../../logger');
 const generateUniqueId = require('../utils/generateId');
 
