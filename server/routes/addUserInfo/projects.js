@@ -30,7 +30,7 @@ router.post('/', verifyToken, [
                 return res.status(404).json({ message: 'User not found!' });
             } else {
                 // Generate project_id using generateUniqueId function
-                const project_id = generateUniqueId('PROJ', username);
+                const project_id = generateUniqueId('project', username);
 
                 const newProject = {
                     project_id,
