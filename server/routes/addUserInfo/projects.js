@@ -3,6 +3,7 @@ const router = express.Router();
 const userModel = require('../../schema/users');
 const { body, validationResult } = require('express-validator');
 const logger = require('../../../logger');
+const generateUniqueId = require('../utils/generateId');
 
 // Endpoint to add project details
 router.post('/', [
@@ -27,24 +28,29 @@ router.post('/', [
                 logger.warn(`User not found: ${username}`);
                 return res.status(404).json({ message: 'User not found!' });
             } else {
+                // Generate project_id using generateUniqueId function
+                const project_id = generateUniqueId('project', username);
+
                 const newProject = {
+                    project_id,
                     projectName,
                     description,
                     projectLink
                 };
+
                 return userModel.updateOne(
                     { 'personalDetail.username': username },
                     { $push: { projectDetail: newProject } },
                     { new: true }
                 )
-                    .then(updatedData => {
-                        logger.info(`New project added successfully for username: ${username}`);
-                        res.json({ message: 'New project added successfully!', data: updatedData.projectDetail });
-                    })
-                    .catch(error => {
-                        logger.error(`Error adding project for username: ${username}, Error: ${error.message}`);
-                        res.status(500).json({ message: 'Error adding project', error: error.message });
-                    });
+                .then(updatedData => {
+                    logger.info(`New project added successfully for username: ${username}`);
+                    res.json({ message: 'New project added successfully!', data: updatedData.projectDetail });
+                })
+                .catch(error => {
+                    logger.error(`Error adding project for username: ${username}, Error: ${error.message}`);
+                    res.status(500).json({ message: 'Error adding project', error: error.message });
+                });
             }
         })
         .catch(error => {

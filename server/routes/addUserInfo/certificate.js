@@ -1,9 +1,12 @@
+// certificates.js
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const userModel = require('../../schema/users');
 const verifyToken = require('../verifytokens');
 const logger = require('../../../logger');
+const generateUniqueId = require('../utils/generateId');
+
 
 // Endpoint to add certificates
 router.post('/', verifyToken, [
@@ -38,6 +41,9 @@ router.post('/', verifyToken, [
                 logger.warn(`User not found for username: ${username}`);
                 return res.status(404).json({ message: 'User not found!' });
             } else {
+                // Generate certificate_id using generateUniqueId function
+                const certificate_id = generateUniqueId('certificate', username);
+
                 // Check if the certificate already exists for the user based on certificateName, organization, and issueDate
                 const existingCertificate = userfound.certificationDetail.find(cert =>
                     cert.certificateName === certificateName &&
@@ -50,6 +56,7 @@ router.post('/', verifyToken, [
                     return res.status(400).json({ message: 'Certificate already exists!' });
                 } else {
                     const newCertificate = {
+                        certificate_id,
                         certificateName,
                         organization,
                         issueDate: new Date(issueDate), //(YYYY-MM-DD) string

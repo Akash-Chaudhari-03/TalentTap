@@ -3,6 +3,7 @@ const router = express.Router();
 const userModel = require('../../schema/users');
 const logger = require('../../../logger'); 
 const verifyToken = require('../verifytokens');
+const generateUniqueId = require('../utils/generateId');
 
 // Endpoint to add skills (only add '+')
 router.post('/', verifyToken, (req, res) => {
@@ -21,7 +22,11 @@ router.post('/', verifyToken, (req, res) => {
                         logger.error(`Skill already exists for username: ${username}`);
                         return res.status(400).json({ message: 'Skill already exists!' });
                     } else {
+                        // Generate skill ID
+                        const skillId = generateUniqueId('skill', username);
+
                         const newData = {
+                            skill_id: skillId, // Add the generated skill ID
                             skill,
                             experience,
                             isValid: true

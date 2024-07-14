@@ -3,6 +3,7 @@ const router = express.Router();
 const userModel = require('../../schema/users');
 const logger = require('../../../logger'); 
 const verifyToken = require('../verifytokens');
+const generateUniqueId = require('../utils/generateId');
 
 // Endpoint to add college detail
 router.post('/', verifyToken, (req, res) => {
@@ -27,7 +28,11 @@ router.post('/', verifyToken, (req, res) => {
                 return res.status(400).json({ message: 'College detail already exist.' });
             }
 
+            // Generate college_id using generateUniqueId function
+            const college_id = generateUniqueId('college', username);
+
             const newData = {
+                college_id,
                 collegeName,
                 collegeLocation,
                 branch,
