@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const registerNewUser = require('./server/routes/register');
 const loginUser = require('./server/routes/login');
 // const updateUserProfile = require('./server/routes/addInfoUserProfile');
-const deleteInfoUserProfile = require('./server/routes/deleteInfoUserProfile');
+// const deleteInfoUserProfile = require('./server/routes/deleteInfoUserProfile');
 const getUserDetails = require('./server/routes/getUserDetails');
 // const editUserDetails = require('./server/routes/editInfoUserProfile');
 
@@ -22,6 +22,12 @@ const editCollegeDetail = require('./server/routes/editUserInfo/collegeDetail');
 const editSkills = require('./server/routes/editUserInfo/skills');
 const editCertificate = require('./server/routes/editUserInfo/certificate');
 const editProjects = require('./server/routes/editUserInfo/projects');
+
+//delete details api import
+const deleteSkills = require('./server/routes/deleteUserInfo/skills');
+const deleteCertificate = require('./server/routes/deleteUserInfo/certificate');
+const deleteProject = require('./server/routes/deleteUserInfo/project');
+const deleteCollegeDetail = require('./server/routes/deleteUserInfo/collegeDetail');
 
 const app = express();
 const PORT = 3000;
@@ -57,8 +63,13 @@ app.use('/userInfo/editDetails/skills', editSkills);
 app.use('/userInfo/editDetails/certificate', editCertificate);
 app.use('/userInfo/editDetails/project', editProjects);
 
-// app.use('/userInfo/deleteDetails', deleteInfoUserProfile);
-// app.use('/userInfo/editDetails', editUserDetails);
+
+//route calls for deleting details
+app.use('/userInfo/deleteDetails/skills', deleteSkills);
+app.use('/userInfo/deleteDetails/certificate', deleteCertificate);
+app.use('/userInfo/deleteDetails/project', deleteProject);
+app.use('/userInfo/deleteDetails/collegeDetail', deleteCollegeDetail);
+
 
 //listening to server at port
 app.listen(PORT, () => console.log(`server running on http://localhost:${PORT}`));
