@@ -4,13 +4,13 @@ const router = express.Router();
 const userModel = require('../../schema/users');
 const { body, validationResult } = require('express-validator');
 const logger = require('../../../logger'); 
-const verifyToken = require('../verifytokens');
+const verifyToken = require('../utils/verifytokens');
 
 // Edit certificate detail API with token verification and validations
 router.post('/', [
     verifyToken, // Token verification middleware
     body('username').notEmpty().withMessage('Username is required'),
-    body('_id').notEmpty().withMessage('_id is required'),
+    body('certificate_id').notEmpty().withMessage('certificate_id is required'),
     body().custom((value, { req }) => {
         if (!req.body.certificateName && !req.body.organization && !req.body.issueDate && !req.body.expiryDate && !req.body.credentialLink) {
             throw new Error('At least one field (certificateName, organization, issueDate, expiryDate, credentialLink) is required');
@@ -24,7 +24,7 @@ router.post('/', [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, _id, certificateName, organization, issueDate, expiryDate, credentialLink } = req.body;
+    const { username, certificate_id, certificateName, organization, issueDate, expiryDate, credentialLink } = req.body;
 
     try {
         // Verify if the authenticated user matches the request user
@@ -41,41 +41,37 @@ router.post('/', [
             return res.status(400).json({ error: 'User not found!' });
         }
 
-        // Find the index of the certificate to update
-        const certificateIndex = userFound.certificationDetail.findIndex(cert => cert._id.toString() === _id);
+        // Find the index of the certificate to update based on certificate_id
+        const certificateIndex = userFound.certificationDetail.findIndex(cert => cert.certificate_id === certificate_id);
 
         if (certificateIndex === -1) {
-            logger.error(`Certificate not found for _id: ${_id}`);
+            logger.error(`Certificate not found for certificate_id: ${certificate_id}`);
             return res.status(400).json({ error: 'Specified certificate does not exist!' });
         }
 
         // Ensure the certificate to update is valid
         const certificateToUpdate = userFound.certificationDetail[certificateIndex];
         if (!certificateToUpdate.isValid) {
-            logger.error(`Invalid certificate status for _id: ${_id}`);
+            logger.error(`Invalid certificate status for certificate_id: ${certificate_id}`);
             return res.status(404).json({ error: 'Specified certificate is not valid!' });
         }
 
         // Prepare updated certificate details
         const updatedCertificateDetail = {
+            certificate_id: certificateToUpdate.certificate_id, // Keep the same certificate_id
             certificateName: certificateName || certificateToUpdate.certificateName,
             organization: organization || certificateToUpdate.organization,
             issueDate: issueDate || certificateToUpdate.issueDate,
             expiryDate: expiryDate || certificateToUpdate.expiryDate,
             credentialLink: credentialLink || certificateToUpdate.credentialLink,
+            isValid: certificateToUpdate.isValid // Preserve the isValid status
         };
 
         // Update the certificate details
-        const infoUpdated = await userModel.findOneAndUpdate(
-            { 'personalDetail.username': username, 'certificationDetail._id': _id },
-            { $set: { 'certificationDetail.$': updatedCertificateDetail } },
-            { new: true }
-        );
+        userFound.certificationDetail[certificateIndex] = updatedCertificateDetail;
 
-        if (!infoUpdated) {
-            logger.error(`User not found for username: ${username}`);
-            return res.status(400).json({ error: 'User not found!' });
-        }
+        // Save the updated user document
+        const infoUpdated = await userFound.save();
 
         logger.info(`Certificate details updated successfully for username: ${username}`);
         res.json({ message: 'Certificate details updated successfully!', detail: infoUpdated.certificationDetail[certificateIndex] });

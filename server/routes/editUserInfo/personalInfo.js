@@ -4,7 +4,7 @@ const router = express.Router();
 const userModel = require('../../schema/users');
 const { body, validationResult } = require('express-validator');
 const logger = require('../../../logger'); 
-const verifyToken = require('../verifytokens');
+const verifyToken = require('../utils/verifytokens');
 
 // edit personal details
 router.post('/', verifyToken, (req, res) => {
