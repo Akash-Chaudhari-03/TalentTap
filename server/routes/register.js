@@ -1,4 +1,3 @@
-// imports
 const express = require('express');
 const router = express.Router();
 const userModel = require('../schema/users');
@@ -68,6 +67,12 @@ router.post('/newUser', async (req, res) => {
         if (password !== confirmPwd) {
             logger.warn('Registration failed: Password and confirm password do not match.');
             return res.json("Password and confirm password do not match.");
+        }
+
+        // Validate username length
+        if (username.length < 8 || username.length > 15) {
+            logger.warn('Registration failed: Username must be between 8 and 15 characters long.');
+            return res.json("Username must be between 8 and 15 characters long.");
         }
 
         // Check if email already exists
