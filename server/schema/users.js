@@ -1,11 +1,14 @@
 //USER SCHEMA
 //imports
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 //schema
 const personalDetail = new mongoose.Schema({
+    userID: { type: String, unique: true },
     email : String,
     password : String,
+    role: { type: Schema.Types.ObjectId, ref: 'Role' }, // Reference to the role
     username : String,
     firstName : String,
     lastName : String,

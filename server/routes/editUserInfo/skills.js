@@ -8,7 +8,7 @@ const verifyToken = require('../utils/verifytokens');
 // Edit skill detail API with token verification and validations
 router.post('/', [
     verifyToken, // Token verification middleware
-    body('username').notEmpty().withMessage('Username is required'),
+    body('userID').notEmpty().withMessage('UserID is required'),
     body('skill_id').notEmpty().withMessage('skill_id is required'),
     body().custom((value, { req }) => {
         // At least one of these fields is required for update
@@ -24,20 +24,20 @@ router.post('/', [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, skill_id, skill, experience, isValid } = req.body;
+    const { userID, skill_id, skill, experience, isValid } = req.body;
 
     try {
         // Verify if the authenticated user matches the request user
-        if (req.user.username !== username) {
-            logger.error(`Unauthorized access: JWT token does not match username`);
+        if (req.user.userID !== userID) {
+            logger.error(`Unauthorized access: JWT token does not match userID`);
             return res.status(401).json({ error: 'Unauthorized access' });
         }
 
-        // Find the user by username
-        const userFound = await userModel.findOne({ 'personalDetail.username': username });
+        // Find the user by userID
+        const userFound = await userModel.findOne({ 'personalDetail.userID': userID });
 
         if (!userFound) {
-            logger.error(`User not found for username: ${username}`);
+            logger.error(`User not found for userID: ${userID}`);
             return res.status(400).json({ error: 'User not found!' });
         }
 
@@ -64,21 +64,21 @@ router.post('/', [
 
         // Update the skill details using $set with specific fields
         const infoUpdated = await userModel.findOneAndUpdate(
-            { 'personalDetail.username': username, 'skillDetail.skill_id': skill_id },
+            { 'personalDetail.userID': userID, 'skillDetail.skill_id': skill_id },
             { $set: updatedSkillDetail },
             { new: true }
         );
 
         if (!infoUpdated) {
-            logger.error(`User not found for username: ${username}`);
+            logger.error(`User not found for userID: ${userID}`);
             return res.status(400).json({ error: 'User not found!' });
         }
 
-        logger.info(`Skill details updated successfully for username: ${username}`);
+        logger.info(`Skill details updated successfully for userID: ${userID}`);
         res.json({ message: 'Skill details updated successfully!', detail: infoUpdated.skillDetail[skillIndex] });
 
     } catch (error) {
-        logger.error(`Error updating skill for username: ${username}, Error: ${error.message}`);
+        logger.error(`Error updating skill for userID: ${userID}, Error: ${error.message}`);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

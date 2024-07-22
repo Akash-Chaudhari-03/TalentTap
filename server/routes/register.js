@@ -1,12 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const userModel = require('../schema/users');
+const roleModel = require('../schema/role');
 const bcrypt = require('bcrypt');
 const logger = require('../../logger'); // Import Winston logger instance
 
+// Function to generate custom user ID
+const generateUserID = () => {
+  const timestamp = new Date().toISOString().replace(/[-T:.Z]/g, '');
+  const randomDigits = Math.floor(100 + Math.random() * 900); // Generates a 3-digit random number
+  return `USR-${timestamp}-${randomDigits}`;
+};
+
 // POST route to register a new user
 router.post('/newUser', async (req, res) => {
-    const { email, username, password, confirmPwd } = req.body;
+    const { email, username, password, confirmPwd } = req.body; // Added 'role' to request body
 
     // Function to validate email format
     const validateEmail = (email) => {
@@ -18,7 +26,7 @@ router.post('/newUser', async (req, res) => {
         logger.info('Registration request received.');
 
         // Check if all fields are provided
-        if (!email || !username || !password || !confirmPwd) {
+        if (!email || !username || !password || !confirmPwd) { // Check for 'role'
             logger.warn('Registration failed: All fields are required.');
             return res.json("All fields are required.");
         }
@@ -89,14 +97,25 @@ router.post('/newUser', async (req, res) => {
             return res.json("Username is already taken.");
         }
 
+        // Find the specified role
+        // const userRole = await roleModel.findOne({ roleName: role });
+        // if (!userRole) {
+        //     logger.warn('Registration failed: Invalid role specified.');
+        //     return res.json("Invalid role specified.");
+        // }
+
         // Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Generate custom user ID
+        const userID = generateUserID();
 
         // User does not exist, create a new user
         const personalDetail = {
             'username': username,
             'email': email,
-            'password': hashedPassword
+            'password': hashedPassword,
+            'userID': userID // Assign custom user ID
         };
         const userDetail = {
             personalDetail: personalDetail,

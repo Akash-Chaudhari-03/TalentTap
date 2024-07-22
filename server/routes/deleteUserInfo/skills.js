@@ -8,7 +8,7 @@ const verifyToken = require('../utils/verifytokens'); // Correct the relative pa
 // Delete skill API with token verification and validations
 router.post('/', [
     verifyToken, // Token verification middleware
-    body('username').notEmpty().withMessage('Username is required'),
+    body('userID').notEmpty().withMessage('UserID is required'),
     body('skill_id').notEmpty().withMessage('Skill ID is required'),
 ], async (req, res) => {
     // Check for validation errors
@@ -17,25 +17,27 @@ router.post('/', [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, skill_id } = req.body;
+    const { userID, skill_id } = req.body;
 
     try {
-        // Find the user by username
-        const userFound = await userModel.findOne({ 'personalDetail.username': username });
+        // Find the user by userID
+        const userFound = await userModel.findOne({ 'personalDetail.userID': userID });
 
         if (!userFound) {
-            logger.error(`User not found for username: ${username}`);
+            logger.error(`User not found for userID: ${userID}`);
             return res.status(400).json({ error: 'User not found!' });
         }
 
         // Verify if the authenticated user matches the request user
-        if (req.user.username !== username) {
-            logger.error(`Unauthorized access: JWT token does not match username`);
+        if (req.user.userID !== userID) {
+            logger.error(`Unauthorized access: JWT token does not match userID`);
             return res.status(401).json({ error: 'Unauthorized access' });
         }
 
         // Find all valid skills with the given skill_id
-        const skillsToUpdate = userFound.skillDetail.filter((skillObject) => skill_id === (skillObject.skill_id.toString()) && skillObject.isValid);
+        const skillsToUpdate = userFound.skillDetail.filter(
+            (skillObject) => skill_id === skillObject.skill_id.toString() && skillObject.isValid
+        );
 
         if (skillsToUpdate.length === 0) {
             logger.error(`Skill not found for skill_id: ${skill_id}`);
@@ -48,10 +50,10 @@ router.post('/', [
         // Save the updated user document
         await userFound.save();
 
-        logger.info(`Skill deleted successfully for username: ${username}`);
+        logger.info(`Skill deleted successfully for userID: ${userID}`);
         res.json({ message: 'Skill deleted!' });
     } catch (error) {
-        logger.error(`Error deleting skill for username: ${username}, Error: ${error.message}`);
+        logger.error(`Error deleting skill for userID: ${userID}, Error: ${error.message}`);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

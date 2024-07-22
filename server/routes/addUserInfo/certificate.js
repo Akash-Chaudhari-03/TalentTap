@@ -1,4 +1,3 @@
-// certificates.js
 const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
@@ -7,10 +6,9 @@ const verifyToken = require('../utils/verifytokens');
 const logger = require('../../../logger');
 const generateUniqueId = require('../utils/generateId');
 
-
 // Endpoint to add certificates
 router.post('/', verifyToken, [
-    body('username').notEmpty().withMessage('Username is required'),
+    body('userID').notEmpty().withMessage('UserID is required'),
     body('certificateName').notEmpty().withMessage('Certificate name is required'),
     body('organization').notEmpty().withMessage('Organization is required'),
     body('issueDate').isISO8601().toDate().withMessage('Issue date must be a valid date in YYYY-MM-DD format').custom((value) => {
@@ -33,16 +31,16 @@ router.post('/', verifyToken, [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, certificateName, organization, issueDate, expiryDate, credentialLink } = req.body;
+    const { userID, certificateName, organization, issueDate, expiryDate, credentialLink } = req.body;
 
-    userModel.findOne({ 'personalDetail.username': username }).exec()
+    userModel.findOne({ 'personalDetail.userID': userID }).exec()
         .then(userfound => {
             if (!userfound) {
-                logger.warn(`User not found for username: ${username}`);
+                logger.warn(`User not found for userID: ${userID}`);
                 return res.status(404).json({ message: 'User not found!' });
             } else {
-                // Generate certificate_id using generateUniqueId function
-                const certificate_id = generateUniqueId('certificate', username);
+                // Generate certificate_id using generateUniqueId function and username
+                const certificate_id = generateUniqueId('certificate', userfound.personalDetail.username);
 
                 // Check if the certificate already exists for the user based on certificateName, organization, and issueDate
                 const existingCertificate = userfound.certificationDetail.find(cert =>
@@ -52,7 +50,7 @@ router.post('/', verifyToken, [
                 );
 
                 if (existingCertificate && existingCertificate.isValid) {
-                    logger.error(`Certificate already exists for username: ${username}`);
+                    logger.error(`Certificate already exists for userID: ${userID}`);
                     return res.status(400).json({ message: 'Certificate already exists!' });
                 } else {
                     const newCertificate = {
@@ -66,12 +64,12 @@ router.post('/', verifyToken, [
                     };
 
                     return userModel.updateOne(
-                        { 'personalDetail.username': username },
+                        { 'personalDetail.userID': userID },
                         { $push: { certificationDetail: newCertificate } },
                         { new: true }
                     )
                     .then(updatedData => {
-                        logger.info(`New certificate added successfully for username: ${username}`);
+                        logger.info(`New certificate added successfully for userID: ${userID}`);
                         res.status(200).json({ message: 'New certificate added successfully!', data: updatedData.certificationDetail });
                     })
                     .catch(error => {
@@ -82,7 +80,7 @@ router.post('/', verifyToken, [
             }
         })
         .catch(error => {
-            logger.error(`Error finding user for username: ${username}, Error: ${error.message}`);
+            logger.error(`Error finding user for userID: ${userID}, Error: ${error.message}`);
             res.status(500).json({ message: 'Error finding user', error: error.message });
         });
 });

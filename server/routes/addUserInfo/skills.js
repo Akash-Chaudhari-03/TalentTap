@@ -7,23 +7,23 @@ const generateUniqueId = require('../utils/generateId');
 
 // Endpoint to add skills (only add '+')
 router.post('/', verifyToken, (req, res) => {
-    const { username, skill, experience } = req.body;
+    const { userID, skill, experience } = req.body;
 
-    if (username && skill && experience) {
-        userModel.findOne({ 'personalDetail.username': username }).exec()
+    if (userID && skill && experience) {
+        userModel.findOne({ 'personalDetail.userID': userID }).exec()
             .then(userfound => {
                 if (!userfound) {
-                    logger.error(`User not found for username: ${username}`);
+                    logger.error(`User not found for userID: ${userID}`);
                     return res.status(404).json({ message: 'User not found!' });
                 } else {
                     // Check if the skill already exists for the user
                     const existingSkill = userfound.skillDetail.find(skillItem => skillItem.skill === skill);
                     if (existingSkill && existingSkill.isValid) {
-                        logger.error(`Skill already exists for username: ${username}`);
+                        logger.error(`Skill already exists for userID: ${userID}`);
                         return res.status(400).json({ message: 'Skill already exists!' });
                     } else {
-                        // Generate skill ID
-                        const skillId = generateUniqueId('skill', username);
+                        // Generate skill ID using the username
+                        const skillId = generateUniqueId('skill', userfound.personalDetail.username);
 
                         const newData = {
                             skill_id: skillId, // Add the generated skill ID
@@ -31,10 +31,10 @@ router.post('/', verifyToken, (req, res) => {
                             experience,
                             isValid: true
                         };
-                        return userModel.updateOne({ 'personalDetail.username': username }, { $push: { skillDetail: newData } }, { new: true })
-                            .then(updatedData => {
-                                logger.info(`New skill added successfully for username: ${username}`);
-                                res.json({ message: 'New skill added successfully!', data: updatedData });
+                        return userModel.updateOne({ 'personalDetail.userID': userID }, { $push: { skillDetail: newData } }, { new: true })
+                            .then(() => {
+                                logger.info(`New skill added successfully for userID: ${userID}`);
+                                res.json({ message: 'New skill added successfully!' });
                             })
                             .catch(error => {
                                 logger.error(`Error updating user skills: ${error.message}`);
