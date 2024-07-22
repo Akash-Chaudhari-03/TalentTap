@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const userModel = require('../../schema/users'); // Correct the relative path if necessary
+const userModel = require('../../schema/users');
 const { body, validationResult } = require('express-validator');
 const logger = require('../../../logger');
-const verifyToken = require('../utils/verifytokens'); // Correct the relative path if necessary
+const verifyToken = require('../utils/verifytokens');
+const path = require('path');
+
+// Manually set the filename for logging purposes
+const filename = path.basename(__filename);
 
 // Delete skill API with token verification and validations
 router.post('/', [
@@ -24,13 +28,13 @@ router.post('/', [
         const userFound = await userModel.findOne({ 'personalDetail.userID': userID });
 
         if (!userFound) {
-            logger.error(`User not found for userID: ${userID}`);
+            logger.error({ message: `User not found for userID: ${userID}`, filename });
             return res.status(400).json({ error: 'User not found!' });
         }
 
         // Verify if the authenticated user matches the request user
         if (req.user.userID !== userID) {
-            logger.error(`Unauthorized access: JWT token does not match userID`);
+            logger.error({ message: `Unauthorized access: JWT token does not match userID`, filename });
             return res.status(401).json({ error: 'Unauthorized access' });
         }
 
@@ -40,7 +44,7 @@ router.post('/', [
         );
 
         if (skillsToUpdate.length === 0) {
-            logger.error(`Skill not found for skill_id: ${skill_id}`);
+            logger.error({ message: `Skill not found for skill_id: ${skill_id}`, filename });
             return res.status(404).json({ error: 'Skill not found!' });
         }
 
@@ -50,10 +54,10 @@ router.post('/', [
         // Save the updated user document
         await userFound.save();
 
-        logger.info(`Skill deleted successfully for userID: ${userID}`);
+        logger.info({ message: `Skill deleted successfully for userID: ${userID}`, filename });
         res.json({ message: 'Skill deleted!' });
     } catch (error) {
-        logger.error(`Error deleting skill for userID: ${userID}, Error: ${error.message}`);
+        logger.error({ message: `Error deleting skill for userID: ${userID}, Error: ${error.message}`, filename });
         res.status(500).json({ error: 'Internal server error' });
     }
 });

@@ -2,18 +2,19 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../../schema/users');
 const { body, validationResult } = require('express-validator');
-const logger = require('../../../logger'); 
+const logger = require('../../../logger');
 const verifyToken = require('../utils/verifytokens');
-const generateUniqueId = require('../utils/generateId'); // Import generateUniqueId if needed
+const path = require('path');
 
-// Edit project detail API with token verification and validations
+const fileName = path.basename(__filename); // Get the filename
+
 router.post('/', [
-    verifyToken, // Token verification middleware
+    verifyToken,
     body('userID').notEmpty().withMessage('UserID is required'),
     body('project_id').notEmpty().withMessage('project_id is required'),
     body().custom((value, { req }) => {
-        if (!req.body.projectName && !req.body.description && !req.body.projectLink) {
-            throw new Error('At least one field (projectName, description, projectLink) is required');
+        if (!req.body.projectName && !req.body.projectDescription && !req.body.projectLink) {
+            throw new Error('At least one field (projectName, projectDescription, projectLink) is required');
         }
         return true;
     }),
@@ -24,61 +25,43 @@ router.post('/', [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userID, project_id, projectName, description, projectLink } = req.body;
+    const { userID, project_id, projectName, projectDescription, projectLink } = req.body;
 
     try {
         // Verify if the authenticated user matches the request user
         if (req.user.userID !== userID) {
-            logger.error(`Unauthorized access: JWT token does not match userID`);
+            logger.error({ message: `Unauthorized access: JWT token does not match userID`, filename: fileName });
             return res.status(401).json({ error: 'Unauthorized access' });
         }
 
         // Find the user by userID
         const userFound = await userModel.findOne({ 'personalDetail.userID': userID });
-
         if (!userFound) {
-            logger.error(`User not found for userID: ${userID}`);
+            logger.error({ message: `User not found for userID: ${userID}`, filename: fileName });
             return res.status(400).json({ error: 'User not found!' });
         }
 
-        // Find the index of the project to update
-        const projectIndex = userFound.projectDetail.findIndex(project => project.project_id.toString() === project_id);
-
-        if (projectIndex === -1) {
-            logger.error(`Project not found for project_id: ${project_id}`);
-            return res.status(400).json({ error: 'Specified project does not exist!' });
-        }
-
-        // Ensure the project to update is valid
-        const projectToUpdate = userFound.projectDetail[projectIndex];
-        if (!projectToUpdate.isValid) {
-            logger.error(`Invalid project status for project_id: ${project_id}`);
+        // Find the project detail to update
+        const project = userFound.projectDetail.find(proj => proj.project_id === project_id && proj.isValid);
+        if (!project) {
+            logger.error({ message: `Project not found or invalid for project_id: ${project_id}`, filename: fileName });
             return res.status(404).json({ error: 'Specified project is not valid!' });
         }
 
-        // Prepare updated project details
-        const updatedProjectDetail = {};
-        if (projectName) updatedProjectDetail['projectDetail.$.projectName'] = projectName;
-        if (description) updatedProjectDetail['projectDetail.$.description'] = description;
-        if (projectLink) updatedProjectDetail['projectDetail.$.projectLink'] = projectLink;
+        // Update project details
+        Object.assign(project, {
+            projectName: projectName || project.projectName,
+            projectDescription: projectDescription || project.projectDescription,
+            projectLink: projectLink || project.projectLink,
+        });
 
-        // Update the project details using $set with specific fields
-        const infoUpdated = await userModel.findOneAndUpdate(
-            { 'personalDetail.userID': userID, 'projectDetail.project_id': project_id },
-            { $set: updatedProjectDetail },
-            { new: true }
-        );
+        // Save the updated user document
+        await userFound.save();
 
-        if (!infoUpdated) {
-            logger.error(`User not found for userID: ${userID}`);
-            return res.status(400).json({ error: 'User not found!' });
-        }
-
-        logger.info(`Project details updated successfully for userID: ${userID}`);
-        res.json({ message: 'Project details updated successfully!', detail: infoUpdated.projectDetail[projectIndex] });
-
+        logger.info({ message: `Project details updated successfully for userID: ${userID}`, filename: fileName });
+        res.json({ message: 'Project details updated successfully!', detail: project });
     } catch (error) {
-        logger.error(`Error updating project for userID: ${userID}, Error: ${error.message}`);
+        logger.error({ message: `Error updating project for userID: ${userID}, Error: ${error.message}`, filename: fileName });
         res.status(500).json({ error: 'Internal server error' });
     }
 });

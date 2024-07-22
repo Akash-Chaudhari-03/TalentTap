@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const userModel = require('../../schema/users'); // Adjust path as necessary
+const userModel = require('../../schema/users');
 const { body, validationResult } = require('express-validator');
 const logger = require('../../../logger');
-const verifyToken = require('../utils/verifytokens'); // Adjust path as necessary
+const verifyToken = require('../utils/verifytokens');
+const path = require('path');
+
+// Manually set the filename for logging purposes
+const filename = path.basename(__filename);
 
 // Delete certification API with token verification and validations
 router.post('/', [
@@ -24,13 +28,13 @@ router.post('/', [
         const userFound = await userModel.findOne({ 'personalDetail.userID': userID });
 
         if (!userFound) {
-            logger.error(`User not found for userID: ${userID}`);
+            logger.error({ message: `User not found for userID: ${userID}`, filename });
             return res.status(400).json({ error: 'User not found!' });
         }
 
         // Verify if the authenticated user matches the request user
         if (req.user.userID !== userID) {
-            logger.error(`Unauthorized access: JWT token does not match userID`);
+            logger.error({ message: `Unauthorized access: JWT token does not match userID`, filename });
             return res.status(401).json({ error: 'Unauthorized access' });
         }
 
@@ -42,14 +46,14 @@ router.post('/', [
         if (certificationIndex !== -1) {
             userFound.certificationDetail[certificationIndex].isValid = false;
             await userFound.save();
-            logger.info(`Certification marked as invalid for userID: ${userID}`);
+            logger.info({ message: `Certification marked as invalid for userID: ${userID}`, filename });
             res.json({ message: 'Certification deleted.' });
         } else {
-            logger.error(`Certification not found for certificate_id: ${certificate_id}`);
+            logger.error({ message: `Certification not found for certificate_id: ${certificate_id}`, filename });
             return res.status(404).json({ error: 'Certification not found.' });
         }
     } catch (error) {
-        logger.error(`Error marking certification as invalid for userID: ${userID}, Error: ${error.message}`);
+        logger.error({ message: `Error marking certification as invalid for userID: ${userID}, Error: ${error.message}`, filename });
         res.status(500).json({ error: 'Internal server error' });
     }
 });

@@ -2,8 +2,12 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../../schema/users');
 const { body, validationResult } = require('express-validator');
-const logger = require('../../../logger'); 
+const logger = require('../../../logger');
 const verifyToken = require('../utils/verifytokens');
+const path = require('path');
+
+// Manually set the filename for logging purposes
+const filename = path.basename(__filename);
 
 // Edit skill detail API with token verification and validations
 router.post('/', [
@@ -29,7 +33,7 @@ router.post('/', [
     try {
         // Verify if the authenticated user matches the request user
         if (req.user.userID !== userID) {
-            logger.error(`Unauthorized access: JWT token does not match userID`);
+            logger.error({ message: `Unauthorized access: JWT token does not match userID`, filename });
             return res.status(401).json({ error: 'Unauthorized access' });
         }
 
@@ -37,7 +41,7 @@ router.post('/', [
         const userFound = await userModel.findOne({ 'personalDetail.userID': userID });
 
         if (!userFound) {
-            logger.error(`User not found for userID: ${userID}`);
+            logger.error({ message: `User not found for userID: ${userID}`, filename });
             return res.status(400).json({ error: 'User not found!' });
         }
 
@@ -45,14 +49,14 @@ router.post('/', [
         const skillIndex = userFound.skillDetail.findIndex(skill => skill.skill_id.toString() === skill_id);
 
         if (skillIndex === -1) {
-            logger.error(`Skill not found for skill_id: ${skill_id}`);
+            logger.error({ message: `Skill not found for skill_id: ${skill_id}`, filename });
             return res.status(400).json({ error: 'Specified skill does not exist!' });
         }
 
         // Ensure the skill to update is valid
         const skillToUpdate = userFound.skillDetail[skillIndex];
         if (!skillToUpdate.isValid) {
-            logger.error(`Invalid skill status for skill_id: ${skill_id}`);
+            logger.error({ message: `Invalid skill status for skill_id: ${skill_id}`, filename });
             return res.status(404).json({ error: 'Specified skill is not valid!' });
         }
 
@@ -70,15 +74,15 @@ router.post('/', [
         );
 
         if (!infoUpdated) {
-            logger.error(`User not found for userID: ${userID}`);
+            logger.error({ message: `User not found for userID: ${userID}`, filename });
             return res.status(400).json({ error: 'User not found!' });
         }
 
-        logger.info(`Skill details updated successfully for userID: ${userID}`);
+        logger.info({ message: `Skill details updated successfully for userID: ${userID}`, filename });
         res.json({ message: 'Skill details updated successfully!', detail: infoUpdated.skillDetail[skillIndex] });
 
     } catch (error) {
-        logger.error(`Error updating skill for userID: ${userID}, Error: ${error.message}`);
+        logger.error({ message: `Error updating skill for userID: ${userID}, Error: ${error.message}`, filename });
         res.status(500).json({ error: 'Internal server error' });
     }
 });

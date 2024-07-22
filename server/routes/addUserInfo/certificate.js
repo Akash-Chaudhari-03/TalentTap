@@ -5,6 +5,10 @@ const userModel = require('../../schema/users');
 const verifyToken = require('../utils/verifytokens');
 const logger = require('../../../logger');
 const generateUniqueId = require('../utils/generateId');
+const path = require('path');
+
+// Manually set the filename for logging purposes
+const filename = path.basename(__filename);
 
 // Endpoint to add certificates
 router.post('/', verifyToken, [
@@ -27,7 +31,7 @@ router.post('/', verifyToken, [
 ], (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        logger.error('Certificate validation failed', { errors: errors.array() });
+        logger.error({ message: 'Certificate validation failed', errors: errors.array(), filename });
         return res.status(400).json({ errors: errors.array() });
     }
 
@@ -36,7 +40,7 @@ router.post('/', verifyToken, [
     userModel.findOne({ 'personalDetail.userID': userID }).exec()
         .then(userfound => {
             if (!userfound) {
-                logger.warn(`User not found for userID: ${userID}`);
+                logger.warn({ message: `User not found for userID: ${userID}`, filename });
                 return res.status(404).json({ message: 'User not found!' });
             } else {
                 // Generate certificate_id using generateUniqueId function and username
@@ -50,15 +54,15 @@ router.post('/', verifyToken, [
                 );
 
                 if (existingCertificate && existingCertificate.isValid) {
-                    logger.error(`Certificate already exists for userID: ${userID}`);
+                    logger.error({ message: `Certificate already exists for userID: ${userID}`, filename });
                     return res.status(400).json({ message: 'Certificate already exists!' });
                 } else {
                     const newCertificate = {
                         certificate_id,
                         certificateName,
                         organization,
-                        issueDate: new Date(issueDate), //(YYYY-MM-DD) string
-                        expiryDate: expiryDate ? new Date(expiryDate) : null,  //(YYYY-MM-DD) string
+                        issueDate: new Date(issueDate),
+                        expiryDate: expiryDate ? new Date(expiryDate) : null,
                         credentialLink,
                         isValid: true
                     };
@@ -69,18 +73,18 @@ router.post('/', verifyToken, [
                         { new: true }
                     )
                     .then(updatedData => {
-                        logger.info(`New certificate added successfully for userID: ${userID}`);
+                        logger.info({ message: `New certificate added successfully for userID: ${userID}`, filename });
                         res.status(200).json({ message: 'New certificate added successfully!', data: updatedData.certificationDetail });
                     })
                     .catch(error => {
-                        logger.error(`Error updating user certificates: ${error.message}`);
+                        logger.error({ message: `Error updating user certificates: ${error.message}`, filename });
                         res.status(500).json({ message: 'Some error occurred', error: error.message });
                     });
                 }
             }
         })
         .catch(error => {
-            logger.error(`Error finding user for userID: ${userID}, Error: ${error.message}`);
+            logger.error({ message: `Error finding user for userID: ${userID}, Error: ${error.message}`, filename });
             res.status(500).json({ message: 'Error finding user', error: error.message });
         });
 });

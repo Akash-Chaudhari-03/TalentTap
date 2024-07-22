@@ -2,12 +2,15 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../../schema/users');
 const { body, validationResult } = require('express-validator');
-const logger = require('../../../logger'); 
+const logger = require('../../../logger');
 const verifyToken = require('../utils/verifytokens');
+const path = require('path');
 
-// Edit certificate detail API with token verification and validations
+// Manually set the filename for logging purposes
+const fileName = path.basename(__filename); 
+
 router.post('/', [
-    verifyToken, // Token verification middleware
+    verifyToken,
     body('userID').notEmpty().withMessage('UserID is required'),
     body('certificate_id').notEmpty().withMessage('certificate_id is required'),
     body().custom((value, { req }) => {
@@ -28,55 +31,40 @@ router.post('/', [
     try {
         // Verify if the authenticated user matches the request user
         if (req.user.userID !== userID) {
-            logger.error(`Unauthorized access: JWT token does not match userID`);
+            logger.error({ message: `Unauthorized access: JWT token does not match userID`, filename: fileName });
             return res.status(401).json({ error: 'Unauthorized access' });
         }
 
         // Find the user by userID
         const userFound = await userModel.findOne({ 'personalDetail.userID': userID });
-
         if (!userFound) {
-            logger.error(`User not found for userID: ${userID}`);
+            logger.error({ message: `User not found for userID: ${userID}`, filename: fileName });
             return res.status(400).json({ error: 'User not found!' });
         }
 
-        // Find the index of the certificate to update based on certificate_id
-        const certificateIndex = userFound.certificationDetail.findIndex(cert => cert.certificate_id === certificate_id);
-
-        if (certificateIndex === -1) {
-            logger.error(`Certificate not found for certificate_id: ${certificate_id}`);
-            return res.status(400).json({ error: 'Specified certificate does not exist!' });
-        }
-
-        // Ensure the certificate to update is valid
-        const certificateToUpdate = userFound.certificationDetail[certificateIndex];
-        if (!certificateToUpdate.isValid) {
-            logger.error(`Invalid certificate status for certificate_id: ${certificate_id}`);
+        // Find the certificate to update
+        const certificate = userFound.certificationDetail.find(cert => cert.certificate_id === certificate_id);
+        if (!certificate || !certificate.isValid) {
+            logger.error({ message: `Certificate not found or invalid for certificate_id: ${certificate_id}`, filename: fileName });
             return res.status(404).json({ error: 'Specified certificate is not valid!' });
         }
 
-        // Prepare updated certificate details
-        const updatedCertificateDetail = {
-            certificate_id: certificateToUpdate.certificate_id, // Keep the same certificate_id
-            certificateName: certificateName || certificateToUpdate.certificateName,
-            organization: organization || certificateToUpdate.organization,
-            issueDate: issueDate || certificateToUpdate.issueDate,
-            expiryDate: expiryDate || certificateToUpdate.expiryDate,
-            credentialLink: credentialLink || certificateToUpdate.credentialLink,
-            isValid: certificateToUpdate.isValid // Preserve the isValid status
-        };
-
-        // Update the certificate details
-        userFound.certificationDetail[certificateIndex] = updatedCertificateDetail;
+        // Update certificate details
+        Object.assign(certificate, {
+            certificateName: certificateName || certificate.certificateName,
+            organization: organization || certificate.organization,
+            issueDate: issueDate || certificate.issueDate,
+            expiryDate: expiryDate || certificate.expiryDate,
+            credentialLink: credentialLink || certificate.credentialLink,
+        });
 
         // Save the updated user document
-        const infoUpdated = await userFound.save();
+        await userFound.save();
 
-        logger.info(`Certificate details updated successfully for userID: ${userID}`);
-        res.json({ message: 'Certificate details updated successfully!', detail: infoUpdated.certificationDetail[certificateIndex] });
-
+        logger.info({ message: `Certificate details updated successfully for userID: ${userID}`, filename: fileName });
+        res.json({ message: 'Certificate details updated successfully!', detail: certificate });
     } catch (error) {
-        logger.error(`Error updating certificate for userID: ${userID}, Error: ${error.message}`);
+        logger.error({ message: `Error updating certificate for userID: ${userID}, Error: ${error.message}`, filename: fileName });
         res.status(500).json({ error: 'Internal server error' });
     }
 });

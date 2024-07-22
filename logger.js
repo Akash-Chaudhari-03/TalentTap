@@ -1,7 +1,7 @@
 // logger.js
 const winston = require('winston');
 const { format } = winston;
-const { combine, timestamp, printf } = format;
+const { combine, timestamp, printf, errors } = format;
 const path = require('path');
 const fs = require('fs');
 const DailyRotateFile = require('winston-daily-rotate-file');
@@ -15,8 +15,11 @@ if (!fs.existsSync(logDir)) {
 // Define log format
 const logFormat = combine(
     timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    printf(({ timestamp, level, message }) => {
-        return `${timestamp} [${level.toUpperCase()}]: ${message}`;
+    errors({ stack: true }), // Include error stack trace
+    printf(({ timestamp, level, message, stack, ...rest }) => {
+        // Extract filename from file path
+        const filename = rest.filename ? path.basename(rest.filename) : 'unknown';
+        return `${timestamp} [${filename}] [${level.toUpperCase()}]: ${message}${stack ? `\n${stack}` : ''}`;
     })
 );
 

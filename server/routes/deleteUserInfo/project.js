@@ -24,13 +24,13 @@ router.post('/', [
         const userFound = await userModel.findOne({ 'personalDetail.userID': userID });
 
         if (!userFound) {
-            logger.error(`User not found for userID: ${userID}`);
+            logger.error(`User not found for userID: ${userID}`, { filename: __filename });
             return res.status(400).json({ error: 'User not found!' });
         }
 
         // Verify if the authenticated user matches the request user
         if (req.user.userID !== userID) {
-            logger.error(`Unauthorized access: JWT token does not match userID`);
+            logger.error(`Unauthorized access: JWT token does not match userID`, { filename: __filename });
             return res.status(401).json({ error: 'Unauthorized access' });
         }
 
@@ -43,19 +43,19 @@ router.post('/', [
             userFound.projectDetail[projectIndex].isValid = false;
             await userFound.save()
                 .then(() => {
-                    logger.info(`Project marked as invalid for userID: ${userID}, project_id: ${project_id}`);
+                    logger.info(`Project marked as invalid for userID: ${userID}, project_id: ${project_id}`, { filename: __filename });
                     res.json({ message: 'Project deleted.' });
                 })
                 .catch((error) => {
-                    logger.error(`Error saving user document for userID: ${userID}, project_id: ${project_id}, Error: ${error.message}`);
+                    logger.error(`Error saving user document for userID: ${userID}, project_id: ${project_id}, Error: ${error.message}`, { filename: __filename });
                     res.status(500).json({ error: 'Internal server error' });
                 });
         } else {
-            logger.error(`Project not found or already invalid for userID: ${userID}, project_id: ${project_id}`);
+            logger.error(`Project not found or already invalid for userID: ${userID}, project_id: ${project_id}`, { filename: __filename });
             return res.status(400).json({ message: 'Project does not exist or is already deleted.' });
         }
     } catch (error) {
-        logger.error(`Error finding user or marking project as invalid for userID: ${userID}, project_id: ${project_id}, Error: ${error.message}`);
+        logger.error(`Error finding user or marking project as invalid for userID: ${userID}, project_id: ${project_id}, Error: ${error.message}`, { filename: __filename });
         res.status(500).json({ error: 'Internal server error' });
     }
 });
