@@ -4,10 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const registerNewUser = require('./server/routes/register');
 const loginUser = require('./server/routes/login');
-// const updateUserProfile = require('./server/routes/addInfoUserProfile');
-// const deleteInfoUserProfile = require('./server/routes/deleteInfoUserProfile');
 const getUserDetails = require('./server/routes/getUserDetails');
-// const editUserDetails = require('./server/routes/editInfoUserProfile');
 
 //add details api import
 const addPersonalDetail = require('./server/routes/addUserInfo/personalInfo');
@@ -28,6 +25,12 @@ const deleteSkills = require('./server/routes/deleteUserInfo/skills');
 const deleteCertificate = require('./server/routes/deleteUserInfo/certificate');
 const deleteProject = require('./server/routes/deleteUserInfo/project');
 const deleteCollegeDetail = require('./server/routes/deleteUserInfo/collegeDetail');
+
+//search user
+const importTestUsersRoute = require('./server/routes/importTestUsers'); 
+const searchUsers = require('./server/routes/search');
+const addusers = require('./server/routes/addusers');
+const postCommunity = require('./server/routes/communityPost');
 
 const app = express();
 const PORT = 3000;
@@ -69,6 +72,14 @@ app.use('/userInfo/deleteDetails/skills', deleteSkills);
 app.use('/userInfo/deleteDetails/certificate', deleteCertificate);
 app.use('/userInfo/deleteDetails/project', deleteProject);
 app.use('/userInfo/deleteDetails/collegeDetail', deleteCollegeDetail);
+
+//route for search api
+app.use('/search', searchUsers);
+app.use('/adduser', addusers);
+app.use('/communityPost', postCommunity);
+
+
+app.use('/api', importTestUsersRoute); // Use the route under /api
 
 
 //listening to server at port

@@ -14,7 +14,7 @@ const personalDetail = new mongoose.Schema({
     lastName : String,
     location : String,
     bio : String,
-    contact : String
+    contact : String,
 })
 
 const collegeDetail = new mongoose.Schema({
@@ -58,7 +58,10 @@ const userSchema = new mongoose.Schema({
     certificationDetail : [certificationDetail],
     projectDetail : [projectDetail],
     skillDetail : [skillDetail],
-    rating : Number,
+    rating: {
+        type: Number,
+        default: 3 // Default rating for new users
+    },
     isAvailable : { type: Boolean, default: true }
 }, { minimize: false })
 
