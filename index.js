@@ -26,12 +26,15 @@ const deleteCertificate = require('./server/routes/deleteUserInfo/certificate');
 const deleteProject = require('./server/routes/deleteUserInfo/project');
 const deleteCollegeDetail = require('./server/routes/deleteUserInfo/collegeDetail');
 
-//search user
+//search use
+const searchUsers = require('./server/routes/search');
+const postCommunity = require('./server/routes/communityForum/communityPost');
+
+//internal api calls
 // const importTestUsersRoute = require('./server/routes/importTestUsers');  ~internal api call
 // const importTags = require('./server/routes/internaldev/addTags');  ~internal api call
 // const addusers = require('./server/routes/addusers');  ~internal api call
-const searchUsers = require('./server/routes/search');
-const postCommunity = require('./server/routes/communityForum/communityPost');
+// const importCategories = require('./server/routes/internaldev/addCategories'); ~internal api call
 
 const app = express();
 const PORT = 3000;
@@ -83,6 +86,7 @@ app.use('/communityPost', postCommunity);
 // app.use('/adduser', addusers);
 // app.use('/api', importTestUsersRoute);
 // app.use('/tags', importTags);
+// app.use('/categories', importCategories);
 
 //listening to server at port
 app.listen(PORT, () => console.log(`server running on http://localhost:${PORT}`));

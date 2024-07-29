@@ -6,16 +6,15 @@ const subscribedUsers = new mongoose.Schema({
     isSubscribed: { type: Boolean, default: true }
 });
 
-const tagSchema = new mongoose.Schema({
-    tagName: String,
-    tagID: String,
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
-    categoryID: String,
-    isActive: { type: Boolean, default: true },
+const categorySchema = new mongoose.Schema({
+    categoryName: String,
+    categoryID: String, 
+    createdAt: { type: Date, default: Date.now }, 
+    updatedAt: { type: Date, default: Date.now },  
+    isActive: Boolean,
     usersSubscribed: [subscribedUsers]
 });
 
-const Tag = mongoose.model('Tag', tagSchema);
+const Category = mongoose.model('Category', categorySchema);
 
-module.exports = Tag;
+module.exports = Category;
