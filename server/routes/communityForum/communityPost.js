@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const postModel = require('../schema/community'); // Import the postModel from community.js
-const userModel = require('../schema/users'); // Import userModel for user reference
+const postModel = require('../../schema/community'); // Import postModel
+const userModel = require('../../schema/users'); // Import userModel
 const { body, validationResult } = require('express-validator');
-const logger = require('../../logger'); // Import your logger
-const verifyToken = require('../routes/utils/verifytokens');
+const logger = require('../../../logger'); // Import logger
+const verifyToken = require('../utils/verifytokens');
 const multer = require('multer');
 const path = require('path');
 
@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Create a community post API with optional file upload handling
-router.post('/', 
+router.post('/',
     verifyToken, // Token verification middleware
     upload.array('files'), // Middleware to handle file uploads (use `upload.single('file')` for single file)
     [
@@ -33,9 +33,12 @@ router.post('/',
         body('tags').isArray().withMessage('Tags should be an array'),
         body('tags.*').isString().withMessage('Each tag should be a string'),
         body('projectLink').optional().isURL().withMessage('Project link must be a valid URL'),
-    ], 
+        body('experienceLevel').notEmpty().withMessage('Experience level is required'),
+        body('preferredRating').optional().isFloat({ min: 0, max: 5 }).withMessage('Preferred rating must be between 0 and 5'),
+        body('location').optional().isString().withMessage('Location must be a string')
+    ],
     async (req, res) => {
-        const { postTitle, postDescription, tags, projectLink } = req.body;
+        const { postTitle, postDescription, tags, projectLink, experienceLevel, preferredRating, location } = req.body;
         const userID = req.user.userID;
 
         try {
@@ -47,7 +50,10 @@ router.post('/',
                 return res.status(400).json({ error: 'User not found!' });
             }
 
-            // Debugging: Check if req.files is defined
+            // Debug logs for received data
+            logger.info({ message: `Received data - postTitle: ${postTitle}, postDescription: ${postDescription}, tags: ${tags}, projectLink: ${projectLink}, experienceLevel: ${experienceLevel}, preferredRating: ${preferredRating}, location: ${location}`, filename });
+
+            // Check if req.files is defined
             const fileAttachments = req.files ? req.files.map(file => ({
                 filename: file.originalname,
                 url: `http://localhost:3000/uploads/${file.filename}` // Adjust the URL as needed
@@ -56,12 +62,15 @@ router.post('/',
             // Create a new community post
             const newPost = new postModel({
                 postTitle,
-                opID: user.personalDetail.userID, // Store custom userID
-                opName: user.personalDetail.username, // Store username
+                opID: user.personalDetail.userID, 
+                opName: user.personalDetail.username, 
                 postDescription,
                 tags,
                 projectLink,
-                fileAttachments, // Add file attachments (can be empty)
+                experienceLevel,
+                preferredRating, 
+                location, 
+                fileAttachments, 
                 creationDate: new Date(),
                 lastUpdated: new Date(),
                 isClosed: false,

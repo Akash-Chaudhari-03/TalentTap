@@ -1,3 +1,8 @@
 node_modules
 logs
 *.env
+server/testUsers.json
+generateTestUsers.js
+server/schema/role.js
+internalDev
+client

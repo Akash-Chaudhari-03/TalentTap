@@ -27,10 +27,11 @@ const deleteProject = require('./server/routes/deleteUserInfo/project');
 const deleteCollegeDetail = require('./server/routes/deleteUserInfo/collegeDetail');
 
 //search user
-const importTestUsersRoute = require('./server/routes/importTestUsers'); 
+// const importTestUsersRoute = require('./server/routes/importTestUsers');  ~internal api call
+// const importTags = require('./server/routes/internaldev/addTags');  ~internal api call
+// const addusers = require('./server/routes/addusers');  ~internal api call
 const searchUsers = require('./server/routes/search');
-const addusers = require('./server/routes/addusers');
-const postCommunity = require('./server/routes/communityPost');
+const postCommunity = require('./server/routes/communityForum/communityPost');
 
 const app = express();
 const PORT = 3000;
@@ -75,12 +76,13 @@ app.use('/userInfo/deleteDetails/collegeDetail', deleteCollegeDetail);
 
 //route for search api
 app.use('/search', searchUsers);
-app.use('/adduser', addusers);
 app.use('/communityPost', postCommunity);
 
 
-app.use('/api', importTestUsersRoute); // Use the route under /api
-
+//internal api calls
+// app.use('/adduser', addusers);
+// app.use('/api', importTestUsersRoute);
+// app.use('/tags', importTags);
 
 //listening to server at port
 app.listen(PORT, () => console.log(`server running on http://localhost:${PORT}`));
