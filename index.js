@@ -30,6 +30,10 @@ const deleteCollegeDetail = require('./server/routes/deleteUserInfo/collegeDetai
 const searchUsers = require('./server/routes/search');
 const postCommunity = require('./server/routes/communityForum/communityPost');
 
+//categories
+const subscribeCategory = require('./server/routes/communityForum/categories/subscribeCategory');
+const unsubscribeCategory = require('./server/routes/communityForum/categories/unsubscribeCategory');
+
 //internal api calls
 // const importTestUsersRoute = require('./server/routes/importTestUsers');  ~internal api call
 // const importTags = require('./server/routes/internaldev/addTags');  ~internal api call
@@ -80,6 +84,11 @@ app.use('/userInfo/deleteDetails/collegeDetail', deleteCollegeDetail);
 //route for search api
 app.use('/search', searchUsers);
 app.use('/communityPost', postCommunity);
+
+
+//routes for categories
+app.use('/subscribe', subscribeCategory);
+app.use('/unsubscribe', unsubscribeCategory);
 
 
 //internal api calls
